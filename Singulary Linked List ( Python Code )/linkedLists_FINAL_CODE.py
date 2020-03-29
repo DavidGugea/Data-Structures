@@ -1,6 +1,5 @@
 import random
 import pprint
-import sys # ~ sys.setrecursionlimit() to avoid RecursionError for quick sort ~ #
 
 class quickSort(object):
     def medianOfThree(self, arr, low, high):
