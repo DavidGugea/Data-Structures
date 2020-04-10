@@ -61,6 +61,9 @@ class CircularLinkedList(object):
         return nodeDataList
 
     def remove_myCode(self, data):
+        # There are 2 cases:
+        # 1. The data is the same as the head data, so the user wants to delete the head of the circular linked list
+        # 2. The data is not the same as the head, so we will have to iterate over the list and change the pointer of the preivous node of the node that the user wants to delete 
         if data == self.head.data:
             current = self.head
 
