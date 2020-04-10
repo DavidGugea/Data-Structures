@@ -102,17 +102,62 @@ class CircularLinkedList(object):
         secondHalf.append(currentNode.data)
 
         return [firstHalf, secondHalf]
+    def __len__(self):
+        cur = self.head
+        count = 0
+ 
+        while cur:
+            count += 1
+            cur = cur.next
+
+            if cur == self.head:
+                break
+
+        return count
+
+    def split_list_tutorialCode(self):
+        size = len(self)
+        
+        if size == 0:
+            return None
+        if size == 1:
+            return self.head
+
+        mid = size // 2
+        count = 0
+
+        prev = None
+        cur = self.head
+
+        while cur and count < mid:
+            count += 1
+
+            prev = cur
+            cur = cur.next
+
+        prev.next = self.head
+
+        split_cllist = CircularLinkedList()
+        while cur.next != self.head:
+            split_cllist.append(cur.data)
+            cur = cur.next
+
+        split_cllist.append(cur.data)
+
+        print(self.nodeData())
+        print(split_cllist.nodeData())
+        
+       
 
 
-cclist = CircularLinkedList()
+cllist = CircularLinkedList()
 
 for charCode in list(range(ord("A"), ord("N") + 1, 1)):
-    cclist.append(chr(charCode))
+    cllist.append(chr(charCode))
 
-for circularLinkedList in cclist.splitListInHalf():
-    print(circularLinkedList.nodeData())
+cllist.split_list_tutorialCode()
 
 for i in range(3):
     print()
 
-print(cclist.nodeData())
+print(cllist.nodeData())
