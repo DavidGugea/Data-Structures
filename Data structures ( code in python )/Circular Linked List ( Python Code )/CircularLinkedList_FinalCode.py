@@ -13,6 +13,7 @@ class CircularLinkedList(object):
         self.length = 0
 
         '''
+        ( ~ Description ( how the method looks ) -> return value [done ( x ) / undone ( empty ) ] )
 
         Methods :
     
@@ -22,20 +23,20 @@ class CircularLinkedList(object):
             ~ Create __len__(self) method  ( len(self) )           -> number    [x]
             
             ~ Node at index                ( self.atIndex(index) ) -> number    [x]
-            ~ Get node data list           ( self.getNodeData()  ) -> list      []
+            ~ Get node data list           ( self.getNodeData()  ) -> list      [x]
 
             ############## GENERAL METHODS ##############
 
             ############## INSERTION / DELETION ##############
             
-            ~ Append ( self.append(data) )                             -> None     []
-            ~ Prepend ( self.prepend(data) )                           -> None     []
+            ~ Append ( self.append(data) )                             -> None     [x]
+            ~ Prepend ( self.prepend(data) )                           -> None     [x]
 
-            ~ Insert after node ( self.insertAfterNode(node, data) )   -> None     []
-            ~ Insert at index   ( self.insertAtIndex(index, data)  )   -> None     []
+            ~ Insert after node ( self.insertAfterNode(node, data) )   -> None     [x]
+            ~ Insert at index   ( self.insertAtIndex(index, data)  )   -> None     [x]
 
-            ~ Delete node       ( self.deleteNode(node) )              -> None     []
-            ~ Delete at index   ( self.deleteAtIndex(index)  )         -> None     []
+            ~ Delete node       ( self.deleteNode(node) )              -> None     [x]
+            ~ Delete at index   ( self.deleteAtIndex(index)  )         -> None     [x]
 
             ############## INSERTION / DELETION ##############
 
