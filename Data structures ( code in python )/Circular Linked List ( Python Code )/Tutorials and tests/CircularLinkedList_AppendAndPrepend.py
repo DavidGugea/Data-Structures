@@ -7,9 +7,38 @@ class CircularLinkedList(object):
     def __init__(self):
         self.head = None
 
-    def prepend(self, data):
-        pass
+    def prepend_myCode(self, data):
+        if not self.head:
+            self.head = Node(data)
+            self.head.next = self.head
+            return
+    
+        lastNode = self.head
+        while lastNode.next != self.head:
+            lastNode = lastNode.next   
 
+        newNode = Node(data)
+
+        lastNode.next = newNode
+        newNode.next = self.head
+        self.head = newNode 
+
+    def prepend_tutorialCode(self, data):
+        new_node = Node(data)
+        cur = self.head
+
+        new_node.next = self.head
+
+        if not self.head:
+            new_node.next = new_node
+        else:
+            while cur.next != self.head:
+                cur = cur.next
+
+            cur.next = new_node 
+
+
+        self.head = new_node
 
     def append_myCode(self, data):
         # Appending something in the list : there are 2 cases:
@@ -74,11 +103,14 @@ class CircularLinkedList(object):
 
 
 cllist = CircularLinkedList()
-cllist.append_myCode("C")
-cllist.append_myCode("D")
-#cllist.prepend_myCode("B")
-#cllist.prepend_myCode("A")
+cllist.append_tutorialCode("C")
+cllist.append_tutorialCode("D")
+cllist.prepend_tutorialCode("B")
+cllist.prepend_tutorialCode("A")
 cllist.print_list_tutorialCode()
+
+for i in range(3):
+    print()
 
 print(" -- > ")
 print(cllist.head.data)
