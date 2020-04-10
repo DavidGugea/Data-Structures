@@ -8,6 +8,9 @@ class CircularLinkedList(object):
         self.head = None
 
     def prepend_myCode(self, data):
+        # 2 cases : 
+        # ~ 1. There is no head
+        # ~ 2. There is already a head that needs to be "pushed forward"
         if not self.head:
             self.head = Node(data)
             self.head.next = self.head
