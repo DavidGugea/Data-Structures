@@ -44,8 +44,8 @@ class CircularLinkedList(object):
 
             ############## OTHERS ##############
             
-            ~ Node swap ( input : nodes to be swaped   )   ( self.swapNodes(node1, node2) )             -> None                    []
-            ~ Node swap ( input : indexes of the nodes )   ( self.swapNodesAtIndexes(index1, index2) )  -> None                    []
+            ~ Node swap ( input : nodes to be swaped   )   ( self.swapNodes(node1, node2) )             -> None                    [x]
+            ~ Node swap ( input : indexes of the nodes )   ( self.swapNodesAtIndexes(index1, index2) )  -> None                    [x]
 
             ~ Reverse                                      ( self.reverse() )                           -> None                    []
 
@@ -359,29 +359,155 @@ class CircularLinkedList(object):
             prev = current
             current = current.next
 
-        print("pv1   -- > {0}".format(pv1.data))
-        print("node1 -- > {0}".format(node1.data))
-
-        print("pv2   -- > {0}".format(pv2.data))
-        print("node2 -- > {0}".format(node2.data))
-
-
         # Swap the nodes
         pv1.next, pv2.next = pv2.next, pv1.next
         node1.next, node2.next = node2.next, node1.next
+
+        # Check for head node and change it in case one of the given swap nodes was a head node ( change the head to the opposite node )
+        if node1 == self.head:
+            self.head = node2
+        elif node2 == self.head:
+            self.head = node1
+    
+    def swapNodesAtIndexes(self, index1, index2):
+        # Check the indexes
+        if index1 < 0 or index2 < 0 or index1 >= self.length or index2 >= self.length:
+            raise IndexError("The provided indexes aren't valid. One or both were too big for the length of the llist ( >= ) or they were too small ( < 0 )")
+        if index1 == index2:
+            return
+
+        # Get the previous & nodes at the given indexes
+        pv1 = None # ~ previous node of the first node 
+        n1  = None # ~ first node
+
+        pv2 = None # ~ previous node of the second node
+        n2  = None # ~ second node
+
+        # Check if one of the nodes is a head node
+        if index1 == 0:
+            # Set the previous node of the first node to the last element of the cllist
+            pv1 = self.getLastNode()
+
+            # Set the node to the head node of the cllist 
+            n1 = self.head
+        if index2 == 0:
+            # Set the previous node of the second node to the last element of the cllist
+            pv2 = self.getLastNode()
+            
+            # Set the node to the head node of the cllist
+            n2 = self.head
+
+        prev = None
+        current = self.head
+        indexTrack = 0
+
+        # While not all values are found : 
+        while not pv1 or not n1 or not pv2 or not n2:
+            if indexTrack == index1 and not pv1 and not n1:
+                pv1 = prev
+                n1 = current
+            if indexTrack == index2 and not pv2 and not n2:
+                pv2 = prev
+                n2 = current
+
+            prev = current
+            current = current.next
+
+            indexTrack += 1
+
+        # Swap the nodes
+        pv1.next, pv2.next = pv2.next, pv1.next
+        n1.next, n2.next = n2.next, n1.next
+
+        # Check for head nodes
+        if n1 == self.head:
+            self.head = n2
+        elif n2 == self.head:
+            self.head = n1
+
+    def reverse(self):
+        # To reverse the circular linked list we will change the pointers ( .next ) of each node to the node before it
+        prev = None
+        current = self.head
+
+        while current.next != self.head:
+            nodeAfter = current.next
+
+            current.next = prev
+
+            prev = current
+            current = nodeAfter
+
+        current.next = prev 
+        self.head.next = current
+        self.head = current
+
+    def mergeBothSorted(self, merge_cllist):
+        ''' 
+        We will merge a sorted cllist where both lists are sorted :
+        Example :
+
+            cllist1 -- > [1, 5, 7, 9, 10]
+            cllist2 -- > [2, 3, 4, 6, 8 ]
+
+            after merge method :
+            cllist1 -- > [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        '''
+        
+        # Create pointers
+        P = self.head
+        Q = merge_cllist.head
+        S = None
+
+        # Create the main node at the lowest node between P & Q 
+        if P.data < Q.data:
+            S = Node(self.head.data)
+            P = P.next
+        elif Q.data < P.data:
+            S = Node(merge_cllist.head.data)
+            Q = Q.next
+
+        newHeadNode = S
+
+        # Iterate over the nodes in both cllists 
+        while ( P is not self.head ) or ( Q is not merge_cllist.head ):
+            for i in range(2):
+                print()
+
+            print("P -- > {0}".format(P.data))
+            print("Q -- > {0}".format(Q.data))
+            print("S -- > {0}".format(S.data))
+
+            for i in range(2):
+                print()
+
+            if S.data < Q.data and Q.data < P.data:
+                S.next = Node(Q.data)
+                Q = Q.next
+            elif S.data < P.data and P.data < Q.data:
+                S.next = Node(P.data)
+                P = P.next
+
+            S = S.next
+        
+        self.head = S
+        S.next = newHeadNode
 
     ############## OTHERS ##############
 
 
 cllist = CircularLinkedList()
+cllist_2 = CircularLinkedList()
 
-for charCode in list(range(ord("A"), ord("F") + 1, 1)):
-    cllist.append(chr(charCode))
-
-cllist.swapNodes(cllist.head, cllist.head.next.next)
+for i in [1, 5, 7, 9, 10]:
+    cllist.append(i)
+for i in [2, 3, 4, 6, 8]:
+    cllist_2.append(i)
 
 for i in range(3):
     print()
+
+cllist.mergeBothSorted(cllist_2)
 
 print(" -- > ")
 print(cllist.getNodeData())
