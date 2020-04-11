@@ -25,6 +25,8 @@ class CircularLinkedList(object):
             ~ Node at index                ( self.atIndex(index) ) -> number    [x]
             ~ Get node data list           ( self.getNodeData()  ) -> list      [x]
 
+            ~ Get last node                ( self.getLastNode()  ) -> Node      [x]
+    
             ############## GENERAL METHODS ##############
 
             ############## INSERTION / DELETION ##############
@@ -105,6 +107,14 @@ class CircularLinkedList(object):
             current = current.next
 
         return nodeDataList
+    
+    def getLastNode(self):
+            current = self.head
+            
+            while current.next != self.head:
+                current = current.next
+
+            return current
 
     ############## GENERAL METHODS ##############
 
@@ -316,12 +326,59 @@ class CircularLinkedList(object):
 
     ############## INSERTION / DELETION ##############
 
+    ############## OTHERS ##############
+    
+    def swapNodes(self, node1, node2):
+        # Check the given nodes
+        if not node1 or not node2:
+            raise ValueError("The given nodes are not valid.")
+        if node1 == node2:
+            return
+
+        # Get the previous nodes for each swap node
+        pv1 = None # - > previous node of the first node that needs to be swaped 
+        pv2 = None # - > previous node of the second node that needs to be swaped
+
+        # Check if one of the nodes is a head node, if that is the case the previous node would be the last node
+        if node1 == self.head:
+            pv1 = self.getLastNode()
+        if node2 == self.head:
+            pv2 = self.getLastNode()
+            
+        # Now iterate to get all the previous needed nodes
+        prev = None
+        current = self.head
+
+        # Iterate and find pv1 & pv2 
+        while not pv1 or not pv2: 
+            if current == node1 and not pv1:
+                pv1 = prev
+            if current == node2 and not pv2:
+                pv2 = prev
+
+            prev = current
+            current = current.next
+
+        print("pv1   -- > {0}".format(pv1.data))
+        print("node1 -- > {0}".format(node1.data))
+
+        print("pv2   -- > {0}".format(pv2.data))
+        print("node2 -- > {0}".format(node2.data))
+
+
+        # Swap the nodes
+        pv1.next, pv2.next = pv2.next, pv1.next
+        node1.next, node2.next = node2.next, node1.next
+
+    ############## OTHERS ##############
+
+
 cllist = CircularLinkedList()
 
-for charCode in list(range(ord("A"), ord("D") + 1, 1)):
+for charCode in list(range(ord("A"), ord("F") + 1, 1)):
     cllist.append(chr(charCode))
 
-cllist.deleteAtIndex(1)
+cllist.swapNodes(cllist.head, cllist.head.next.next)
 
 for i in range(3):
     print()
