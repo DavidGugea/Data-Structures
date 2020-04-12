@@ -1,9 +1,77 @@
+import random
+import pprint
+
 # Create the node object, it will have a pointer to the next node (self.next) & a data value (self.data)
 class Node(object):
     def __init__(self, data):
         self.data = data
         self.next = None
 
+class quickSort(object):
+    def medianOfThree(self, arr, low, high):
+        if len(arr) >= 3:
+            # Get the start, middle and last value
+            start_middle_last = [ arr[low], arr[ ( low + high ) // 2 ], arr[ high ] ]
+
+            # Sort the list
+            start_middle_last.sort()
+
+            # Retun the index of the middle element 
+            return arr.index(start_middle_last[1])
+        else:
+            return random.randint(low, high)
+    def partition(self, arr, low, high):
+        # Pick the pivot index and select the pivot value ( using the 'median of three' startegy )
+        pivotIndex = self.medianOfThree(arr, low, high) 
+        pivotValue = arr[pivotIndex]
+
+        # Swap the pivot with the last element from the list to get the pivot from our way
+        arr[pivotIndex], arr[high] = arr[high], arr[pivotIndex]
+
+        # Update pivot index
+        pivotIndex = high
+
+        # Create 2 pointers ( LP & RP ). 
+        LP = low       # LP ( items > pivot )
+        RP = high - 1  # RP ( items < pivot )
+
+        while LP <= RP:
+            if arr[LP] > pivotValue and arr[RP] < pivotValue:
+                # Swap the pointer values
+                arr[LP], arr[RP] = arr[RP], arr[LP]
+
+                # Increment left pointer index value
+                LP += 1
+                # Decrement right pointer index value
+                RP -= 1
+            else:
+                if arr[LP] < pivotValue:
+                    # Increment left pointer index value
+                    LP += 1
+
+                if arr[RP] > pivotValue:
+                    # Decrement right pointer index value
+                    RP -= 1
+
+        # Swap the pivot index with the left pointer value
+        arr[pivotIndex], arr[LP] = arr[LP], arr[pivotIndex]
+
+        # Update pivot index
+        pivotIndex = LP
+
+        # Return the border index value of the pivot
+        return pivotIndex 
+    def sort(self, arr, low, high):
+        if low <= high:
+            # Get the 'border' index
+            partitionSplitIndex = self.partition(arr, low, high)
+
+            # Sort both halves of the array
+            self.sort(arr, low, partitionSplitIndex - 1)
+            self.sort(arr, partitionSplitIndex + 1, high)
+
+for i in range(2):
+    print()
 
 class CircularLinkedList(object):
     def __init__(self):
@@ -15,7 +83,6 @@ class CircularLinkedList(object):
 
         '''
         ( ~ Description ( how the method looks ) -> return value [done ( x ) / undone ( empty ) ] )
-
         Methods :
     
             ############## GENERAL METHODS ##############
@@ -25,7 +92,6 @@ class CircularLinkedList(object):
             
             ~ Node at index                ( self.atIndex(index) ) -> number    [x]
             ~ Get node data list           ( self.getNodeData()  ) -> list      [x]
-
             ~ Get last node                ( self.getLastNode()  ) -> Node      [x]
     
             ############## GENERAL METHODS ##############
@@ -48,18 +114,17 @@ class CircularLinkedList(object):
             ~ Node swap ( input : nodes to be swaped   )   ( self.swapNodes(node1, node2) )             -> None                    [x]
             ~ Node swap ( input : indexes of the nodes )   ( self.swapNodesAtIndexes(index1, index2) )  -> None                    [x]
 
-            ~ Reverse                                      ( self.reverse() )                           -> None                    []
+            ~ Reverse                                      ( self.reverse() )                           -> None                    [x]
 
-            ~ Merge ( both sorted )                        ( self.mergeBothSorted(cllist) )             -> None                    []
-            ~ Merge ( both unsorted )                      ( self.mergeBothUnsorted(cllist) )           -> None                    []
+            ~ Merge ( both sorted )                        ( self.mergeBothSorted(cllist) )             -> None                    [x]
+            ~ Merge ( both unsorted )                      ( self.mergeBothUnsorted(cllist) )           -> None                    [x]
 
-            ~ Remove duplicates                            ( self.removeDuplicates() )                  -> None                    []
-
+            ~ Remove duplicates                            ( self.removeDuplicates() )                  -> None                    [x]
             ~ Rotate                                       ( self.rotate() )                            -> None                    []
 
             ~ Is palindrome                                ( self.isPalindrome() )                      -> True / False            []
-            ~ Move tail to head                            ( self.moveTailToHead() )                    -> None                    []
 
+            ~ Move tail to head                            ( self.moveTailToHead() )                    -> None                    []
             ~ Sum with another circular linked list        ( self.sumWithCLLIST(cllist) )               -> number                  []
 
             ~ Split list in half                           ( self.splitInHalf() )                       -> [ cllist1, cllist2 ]    []
@@ -453,13 +518,14 @@ class CircularLinkedList(object):
         ''' 
         We will merge a sorted cllist where both lists are sorted :
         Example :
-
             cllist1 -- > [1, 5, 7, 9, 10]
             cllist2 -- > [2, 3, 4, 6, 8 ]
-
             after merge method :
             cllist1 -- > [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         '''
+        # Check the merge cllist
+        if not merge_cllist:
+            raise ValueError("The given merge cllist is not valid.")
 
         # Create pointers
         P = self.head
@@ -478,21 +544,21 @@ class CircularLinkedList(object):
 
         # Iterate over the nodes in both cllists
         while True:
-	    # Check for the next pointer
+            # Check for the next pointer
             if S.data < Q.data and Q.data < P.data:
                 S.next = Node(Q.data)
                 Q = Q.next
             elif S.data < P.data and P.data < Q.data:
                 S.next = Node(P.data)
                 P = P.next
-            
-	    # Check if we should stop the loop. ( Stop the loop when one of the pointers has reached the limit
-	    if P is self.head:
-	    	break
-	    if Q is merge_cllist.head:
-	    	break
-	
-	    # Change the main pointer
+
+            # Check if we should stop the loop. ( Stop the loop when one of the pointers has reached the limit
+            if P is self.head:
+                break
+            if Q is merge_cllist.head:
+                break
+
+            # Change the main pointer
             S = S.next
 
         # Adding leftovers
@@ -511,7 +577,77 @@ class CircularLinkedList(object):
         # Change the head node of the cllist
         self.head = newHeadNode
         S.next = self.head
+    
+    def mergeBothUnsorted(self, merge_cllist):
+        '''
+        This is the same as merge both sorted, but we have to sort the node data in both lists first
 
+        ###########################################################
+        # ~ 1. Get all the node data in a list                   ##
+        # ~ 2. Sort the node data using the quick sort algorithm ##
+        # ~ 3. Rebuild the main cllist ( self )                  ##
+        ###########################################################
+
+        Example :
+        
+            main cllist  -- > [5, 4, 3, 2, 1 ]
+            merge cllist -- > [10, 9, 8, 7, 6]
+
+            after self.mergeBothUnsorted(...) ==> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        '''
+        
+        # ~ 1
+        nodeDataList = self.getNodeData()
+        nodeDataList.extend(merge_cllist.getNodeData())
+        
+        # ~ 2
+        quickSort_alg = quickSort()
+        quickSort_alg.sort(nodeDataList, 0, len(nodeDataList) - 1) 
+
+        # ~ 3
+        current = Node(nodeDataList[0])
+        self.head = current
+
+        for nodeData in nodeDataList[1:]:
+            current.next = Node(nodeData)
+            current = current.next
+
+        current.next = self.head
+
+    def removeDuplicates(self):
+        # Make a list with all the node data and remove the duplicates from that list
+        # Rebuild the list
+
+        nodeDataList = self.getNodeData()
+
+        # Create two pointers, one that starts at the beginning of the cllist, the other starts at the end, that will 'scan' the list
+        LP = 0                      # Left pointer
+        RP = len(nodeDataList) - 1  # Right pointer
+
+        # Create an empty list that will contain all the values that don't repeat themselves
+        noDuplicatesList = list()
+
+        while LP <= RP:
+            # Check if the value is not in the 'noDuplicatesList', if it's not, append it to the list
+            if nodeDataList[LP] not in noDuplicatesList:
+                noDuplicatesList.append(nodeDataList[LP])
+            if nodeDataList[RP] not in noDuplicatesList:
+                noDuplicatesList.append(nodeDataList[RP])
+            
+            # Increment left pointer | Decrement right pointer
+            LP += 1
+            RP -= 1
+    
+        
+        # Rebuild the list
+        self.head = Node( noDuplicatesList[0] )
+        current = self.head
+            
+        for nodeData in noDuplicatesList[1:]:
+            current.next = Node(nodeData)
+            current = current.next
+
+        current.next = self.head
 
     ############## OTHERS ##############
 
@@ -519,15 +655,15 @@ class CircularLinkedList(object):
 cllist = CircularLinkedList()
 cllist_2 = CircularLinkedList()
 
-for i in [1, 5, 7, 9, 10]:
+for i in [1, 1, 1, 1, 1, 2, 3 ,4, 4, 4, 5, 6, 2, 2, 2, 1, 4, 5, 6, 7, 8, 9, 2, 3, 4]:
     cllist.append(i)
-for i in [2, 3, 4, 6, 8]:
+for i in list(range(10, 5, -1)):
     cllist_2.append(i)
 
 for i in range(3):
     print()
 
-cllist.mergeBothSorted(cllist_2)
+cllist.removeDuplicates()
 
 print(" -- > ")
 print(cllist.getNodeData())
