@@ -4,11 +4,12 @@ class Node(object):
         self.data = data
         self.next = None
 
+
 class CircularLinkedList(object):
     def __init__(self):
         # Create the head node of the list when you make a new instance of the circular linked list class & set it to none
         self.head = None
-        
+
         # Besides the head node, keep track of the length of the circular linked list too. Set it by default to 0
         self.length = 0
 
@@ -71,11 +72,12 @@ class CircularLinkedList(object):
             ############## OTHERS ##############
          
         '''
-    
+
     ############## GENERAL METHODS ##############
 
     def getLength(self):
         return self.length
+
     def __len__(self):
         return self.length
 
@@ -107,19 +109,19 @@ class CircularLinkedList(object):
             current = current.next
 
         return nodeDataList
-    
-    def getLastNode(self):
-            current = self.head
-            
-            while current.next != self.head:
-                current = current.next
 
-            return current
+    def getLastNode(self):
+        current = self.head
+
+        while current.next != self.head:
+            current = current.next
+
+        return current
 
     ############## GENERAL METHODS ##############
 
     ############## INSERTION / DELETION ##############
-    
+
     def append(self, data):
         ########################################################################################
         # There are 2 cases :                                                                 ##
@@ -144,11 +146,11 @@ class CircularLinkedList(object):
             current.next = appendNode
 
             # Change the pointer of the last node to pointer at the head of the cllist, since it is a 'circular" linked list
-            appendNode.next = self.head 
-        
+            appendNode.next = self.head
+
         # Increment the length of the cllist
         self.length += 1
-    
+
     def prepend(self, data):
         #########################################################################################################################################################################################
         # There are 2 cases:                                                                                                                                                                   ##
@@ -168,7 +170,7 @@ class CircularLinkedList(object):
             # Iterate to the end to get the last node
             while current.next != self.head:
                 current = current.next
-    
+
             # Change the pointer of the last node
             current.next = prependNode
 
@@ -193,7 +195,7 @@ class CircularLinkedList(object):
 
         # Find the node to insert after
         while current != node:
-            current = after 
+            current = after
             after = after.next
 
         # Change pointers
@@ -202,11 +204,13 @@ class CircularLinkedList(object):
 
         # Increment the length of the cllist
         self.length += 1
+
     def insertAtIndex(self, index, data):
         # Check the given index
         if index > self.length or index < 0:
-            raise IndexError("The given index is too big for the list or too small")
-        
+            raise IndexError(
+                "The given index is too big for the list or too small")
+
         if index == 0:
             # Prepend the node
 
@@ -214,7 +218,7 @@ class CircularLinkedList(object):
             current = self.head
             prependNode = Node(data)
 
-            # Iterate over the cllist 
+            # Iterate over the cllist
             while current.next != self.head:
                 current = current.next
 
@@ -254,7 +258,7 @@ class CircularLinkedList(object):
             insertNode.next = current
 
         self.length += 1
-    
+
     def deleteNode(self, node):
         # Check node
         if not node:
@@ -263,7 +267,7 @@ class CircularLinkedList(object):
         if node == self.head:
             # Change the pointer of the last node to the next node after the head node and then update the head node
             current = self.head
-            
+
             # Iterate over the cllist to find the last node
             while current.next != self.head:
                 current = current.next
@@ -273,7 +277,7 @@ class CircularLinkedList(object):
             self.head = self.head.next
         else:
             # Look for the node that needs to be deleted while keeping track of the previous node. When you find the nodes, set the pointer of the previous node to the node in front of the node that needs to be deleted
-            
+
             prev = None
             current = self.head
 
@@ -285,14 +289,16 @@ class CircularLinkedList(object):
             # Change the pointers
             prev.next = current.next
             current = None
-        
+
         # Decrement the length of the cllist
         self.length -= 1
+
     def deleteAtIndex(self, index):
         # Check index
         if index >= self.length or index < 0:
-            raise IndexError("The given index is not valid. It is either too big for the cllist or too small ( < 0 ).")
-        
+            raise IndexError(
+                "The given index is not valid. It is either too big for the cllist or too small ( < 0 ).")
+
         if index == 0:
             # Change the pointer of the last node to the next node after the head node and then update the head node
             current = self.head
@@ -300,7 +306,7 @@ class CircularLinkedList(object):
             # Iterate over cllist to find the last node
             while current.next != self.head:
                 current = current.next
-               
+
             # Change the pointers
             current.next = self.head.next
             self.head = self.head.next
@@ -309,8 +315,8 @@ class CircularLinkedList(object):
             prev = None
             current = self.head
             indexTrack = 0
-            
-            # Iterate over the list till the given index  
+
+            # Iterate over the list till the given index
             while indexTrack < index:
                 prev = current
                 current = current.next
@@ -320,14 +326,14 @@ class CircularLinkedList(object):
             # Change the pointers in the proper order
             prev.next = current.next
             current = None
-        
+
         # Decrement the length of the cllist
         self.length -= 1
 
     ############## INSERTION / DELETION ##############
 
     ############## OTHERS ##############
-    
+
     def swapNodes(self, node1, node2):
         # Check the given nodes
         if not node1 or not node2:
@@ -336,21 +342,21 @@ class CircularLinkedList(object):
             return
 
         # Get the previous nodes for each swap node
-        pv1 = None # - > previous node of the first node that needs to be swaped 
-        pv2 = None # - > previous node of the second node that needs to be swaped
+        pv1 = None  # - > previous node of the first node that needs to be swaped
+        pv2 = None  # - > previous node of the second node that needs to be swaped
 
         # Check if one of the nodes is a head node, if that is the case the previous node would be the last node
         if node1 == self.head:
             pv1 = self.getLastNode()
         if node2 == self.head:
             pv2 = self.getLastNode()
-            
+
         # Now iterate to get all the previous needed nodes
         prev = None
         current = self.head
 
-        # Iterate and find pv1 & pv2 
-        while not pv1 or not pv2: 
+        # Iterate and find pv1 & pv2
+        while not pv1 or not pv2:
             if current == node1 and not pv1:
                 pv1 = prev
             if current == node2 and not pv2:
@@ -368,32 +374,33 @@ class CircularLinkedList(object):
             self.head = node2
         elif node2 == self.head:
             self.head = node1
-    
+
     def swapNodesAtIndexes(self, index1, index2):
         # Check the indexes
         if index1 < 0 or index2 < 0 or index1 >= self.length or index2 >= self.length:
-            raise IndexError("The provided indexes aren't valid. One or both were too big for the length of the llist ( >= ) or they were too small ( < 0 )")
+            raise IndexError(
+                "The provided indexes aren't valid. One or both were too big for the length of the llist ( >= ) or they were too small ( < 0 )")
         if index1 == index2:
             return
 
         # Get the previous & nodes at the given indexes
-        pv1 = None # ~ previous node of the first node 
-        n1  = None # ~ first node
+        pv1 = None  # ~ previous node of the first node
+        n1 = None  # ~ first node
 
-        pv2 = None # ~ previous node of the second node
-        n2  = None # ~ second node
+        pv2 = None  # ~ previous node of the second node
+        n2 = None  # ~ second node
 
         # Check if one of the nodes is a head node
         if index1 == 0:
             # Set the previous node of the first node to the last element of the cllist
             pv1 = self.getLastNode()
 
-            # Set the node to the head node of the cllist 
+            # Set the node to the head node of the cllist
             n1 = self.head
         if index2 == 0:
             # Set the previous node of the second node to the last element of the cllist
             pv2 = self.getLastNode()
-            
+
             # Set the node to the head node of the cllist
             n2 = self.head
 
@@ -401,7 +408,7 @@ class CircularLinkedList(object):
         current = self.head
         indexTrack = 0
 
-        # While not all values are found : 
+        # While not all values are found :
         while not pv1 or not n1 or not pv2 or not n2:
             if indexTrack == index1 and not pv1 and not n1:
                 pv1 = prev
@@ -438,7 +445,7 @@ class CircularLinkedList(object):
             prev = current
             current = nodeAfter
 
-        current.next = prev 
+        current.next = prev
         self.head.next = current
         self.head = current
 
@@ -453,13 +460,13 @@ class CircularLinkedList(object):
             after merge method :
             cllist1 -- > [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         '''
-        
+
         # Create pointers
         P = self.head
         Q = merge_cllist.head
         S = None
 
-        # Create the main node at the lowest node between P & Q 
+        # Create the main node at the lowest node between P & Q
         if P.data < Q.data:
             S = Node(self.head.data)
             P = P.next
@@ -469,29 +476,42 @@ class CircularLinkedList(object):
 
         newHeadNode = S
 
-        # Iterate over the nodes in both cllists 
-        while ( P is not self.head ) or ( Q is not merge_cllist.head ):
-            for i in range(2):
-                print()
-
-            print("P -- > {0}".format(P.data))
-            print("Q -- > {0}".format(Q.data))
-            print("S -- > {0}".format(S.data))
-
-            for i in range(2):
-                print()
-
+        # Iterate over the nodes in both cllists
+        while True:
+	    # Check for the next pointer
             if S.data < Q.data and Q.data < P.data:
                 S.next = Node(Q.data)
                 Q = Q.next
             elif S.data < P.data and P.data < Q.data:
                 S.next = Node(P.data)
                 P = P.next
+            
+	    # Check if we should stop the loop. ( Stop the loop when one of the pointers has reached the limit
+	    if P is self.head:
+	    	break
+	    if Q is merge_cllist.head:
+	    	break
+	
+	    # Change the main pointer
+            S = S.next
+
+        # Adding leftovers
+        while P is not self.head:
+            S.next = Node(P.data)
+            P = P.next
 
             S = S.next
-        
-        self.head = S
-        S.next = newHeadNode
+
+        while Q is not merge_cllist.head:
+            S.next = Node(Q.data)
+            Q = Q.next
+
+            S = S.next
+
+        # Change the head node of the cllist
+        self.head = newHeadNode
+        S.next = self.head
+
 
     ############## OTHERS ##############
 
