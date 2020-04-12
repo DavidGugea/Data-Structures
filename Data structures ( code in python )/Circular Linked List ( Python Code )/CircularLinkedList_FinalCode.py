@@ -7,7 +7,28 @@ class Node(object):
         self.data = data
         self.next = None
 
-class quickSort(object):
+# Create a singly linked list class to use the isCircularLinkedList() method from the circular linked list class ( to test if it return false if we pass a singly linked list in as an argument ) 
+class SinglyLinkedList(object):
+    def __init__(self):
+        self.head = None
+    def append(self, data):
+        if not self.head:
+            self.head = Node(data)
+        else:
+            current = self.head
+            while current.next:
+                current = current.next
+
+            current.next = Node(data)
+    def prepend(self, data):
+        if not self.head:
+            self.head = Node(data)
+        else:
+            newNode = Node(data)
+            newNode.next = self.head
+            self.head = newNode
+
+class QuickSort(object):
     def medianOfThree(self, arr, low, high):
         if len(arr) >= 3:
             # Get the start, middle and last value
@@ -70,9 +91,6 @@ class quickSort(object):
             self.sort(arr, low, partitionSplitIndex - 1)
             self.sort(arr, partitionSplitIndex + 1, high)
 
-for i in range(2):
-    print()
-
 class CircularLinkedList(object):
     def __init__(self):
         # Create the head node of the list when you make a new instance of the circular linked list class & set it to none
@@ -120,19 +138,19 @@ class CircularLinkedList(object):
             ~ Merge ( both unsorted )                      ( self.mergeBothUnsorted(cllist) )           -> None                    [x]
 
             ~ Remove duplicates                            ( self.removeDuplicates() )                  -> None                    [x]
-            ~ Rotate                                       ( self.rotate() )                            -> None                    []
+            ~ Rotate                                       ( self.rotate(rotationValue) )               -> None                    [x]
 
-            ~ Is palindrome                                ( self.isPalindrome() )                      -> True / False            []
+            ~ Is palindrome                                ( self.isPalindrome() )                      -> True / False            [x]
 
-            ~ Move tail to head                            ( self.moveTailToHead() )                    -> None                    []
-            ~ Sum with another circular linked list        ( self.sumWithCLLIST(cllist) )               -> number                  []
+            ~ Move tail to head                            ( self.moveTailToHead() )                    -> None                    [x]
+            ~ Sum with another circular linked list        ( self.sumWithCLLIST(cllist) )               -> number                  [x]
 
-            ~ Split list in half                           ( self.splitInHalf() )                       -> [ cllist1, cllist2 ]    []
-            ~ Split list after node                        ( self.splitAfterNode(node) )                -> [ cllist1, cllist2 ]    []
-            ~ Split list at index                          ( self.splitAtIndex(index) )                 -> [ cllist1, cllist2 ]    []
+            ~ Split list in half                           ( self.splitInHalf() )                       -> [ cllist1, cllist2 ]    [x]
+            ~ Split list after node                        ( self.splitAfterNode(node) )                -> [ cllist1, cllist2 ]    [x]
+            ~ Split list at index                          ( self.splitAtIndex(index) )                 -> [ cllist1, cllist2 ]    [x]
 
-            ~ Josephus problem                             ( self.josephusProblem(step) )               -> None                    []
-            ~ Is Circular Linked List                      ( self.isCircularLinkedList() )              -> True / False            []
+            ~ Josephus problem                             ( self.josephusProblem(step) )               -> None                    [x]
+            ~ Is Circular Linked List                      ( self.isCircularLinkedList(list_) )         -> True / False            [x]
 
             ############## OTHERS ##############
          
@@ -601,7 +619,7 @@ class CircularLinkedList(object):
         nodeDataList.extend(merge_cllist.getNodeData())
         
         # ~ 2
-        quickSort_alg = quickSort()
+        quickSort_alg = QuickSort()
         quickSort_alg.sort(nodeDataList, 0, len(nodeDataList) - 1) 
 
         # ~ 3
@@ -649,21 +667,144 @@ class CircularLinkedList(object):
 
         current.next = self.head
 
+    def rotate(self, rotationValue):
+        '''
+        Example:
+
+        cllist        -- > [ 10, 20, 30, 40, 50, 60 ]
+        rotationValue -- > 4
+
+        After self.rotate( ... ) 
+
+        cllist        -- > [ 50, 60, 10, 20, 30, 40 ]
+        '''
+        
+        # Reset the head at the index value
+        current = self.head
+        indexTrack = 0
+
+        while indexTrack != rotationValue:
+            current = current.next
+            indexTrack += 1
+
+        self.head = current
+   
+    def isPalindrome(self):
+        # Get the data value in a string and return true if it's the same turned around, otherwise false
+        nodeDataList = self.getNodeData()
+        nodeDataString = str()
+
+        for i in nodeDataList:
+            nodeDataString += str(i)
+
+        return nodeDataString == nodeDataString[::-1]
+
+    def moveTailToHead(self):
+        # Replace the last node of the list with the head
+        current = self.head
+        
+        while current.next != self.head:
+            current = current.next
+
+        self.head, current = current, self.head
+
+    def sumWithCLLIST(self, cllist):
+        allNodes = self.getNodeData()
+        allNodes.extend(cllist.getNodeData())
+
+        return sum(allNodes)
+
+    def splitInHalf(self):
+        # Return 2 cllists with the values split in half from the main cllist ( self )
+        
+        cllist_1 = CircularLinkedList()
+        cllist_2 = CircularLinkedList()
+        
+        indexTrack = 0
+        border = len(self) // 2 - 1
+        current = self.head
+
+        while current.next != self.head:
+            if indexTrack <= border:
+                cllist_1.append(current.data)
+            if indexTrack > border:
+                cllist_2.append(current.data)
+
+            indexTrack += 1
+            current = current.next
+
+        cllist_2.append(current.data)
+
+        return [ cllist_1, cllist_2 ]
+
+    def splitAfterNode(self, node):
+        # Return 2 cllists with the values split in half from the main cllist ( self )
+        
+        cllist_1 = CircularLinkedList()
+        cllist_2 = CircularLinkedList()
+
+        current = self.head
+        afterTarget = False
+
+        while current.next != self.head:
+            if not afterTarget:
+                cllist_1.append(current.data)
+            if afterTarget:
+                cllist_2.append(current.data)
+
+            if current == node:
+                afterTarget = True
+
+            current = current.next
+
+        cllist_2.append(current.data)
+
+        return [ cllist_1, cllist_2 ]
+
+    def splitAtIndex(self, index):
+        # Return 2 cllists with the values split in half from the main cllist ( self )
+        
+        cllist_1 = CircularLinkedList()
+        cllist_2 = CircularLinkedList()
+
+        current = self.head
+        indexTrack = 0
+
+        while current.next != self.head:
+            if indexTrack <= index:
+                cllist_1.append(current.data)
+            else:
+                cllist_2.append(current.data)
+
+            indexTrack += 1
+            current = current.next
+
+        cllist_2.append(current.data)
+
+        return [ cllist_1, cllist_2 ]
+
+    def josephusProblem(self, step):
+        current = self.head
+        stepTrack = 1
+        while len(self) >= step:
+            if stepTrack % step == 0:
+                self.deleteNode(current)
+
+            stepTrack += 1
+            current = current.next
+
+    def isCircularLinkedList(self, list_):
+        current = list_.head.next
+
+        while current:
+            if not current:
+                return False
+            if current == list_.head:
+                return True
+
+            current = current.next
+
+        return False
+
+
     ############## OTHERS ##############
-
-
-cllist = CircularLinkedList()
-cllist_2 = CircularLinkedList()
-
-for i in [1, 1, 1, 1, 1, 2, 3 ,4, 4, 4, 5, 6, 2, 2, 2, 1, 4, 5, 6, 7, 8, 9, 2, 3, 4]:
-    cllist.append(i)
-for i in list(range(10, 5, -1)):
-    cllist_2.append(i)
-
-for i in range(3):
-    print()
-
-cllist.removeDuplicates()
-
-print(" -- > ")
-print(cllist.getNodeData())
