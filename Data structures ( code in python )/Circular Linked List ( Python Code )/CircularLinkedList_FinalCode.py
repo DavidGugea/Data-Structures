@@ -7,6 +7,7 @@ class Node(object):
         self.data = data
         self.next = None
 
+
 # Create a singly linked list class to use the isCircularLinkedList() method from the circular linked list class ( to test if it return false if we pass a singly linked list in as an argument ) 
 class SinglyLinkedList(object):
     def __init__(self):
@@ -27,6 +28,7 @@ class SinglyLinkedList(object):
             newNode = Node(data)
             newNode.next = self.head
             self.head = newNode
+
 
 class QuickSort(object):
     def medianOfThree(self, arr, low, high):
@@ -633,39 +635,25 @@ class CircularLinkedList(object):
         current.next = self.head
 
     def removeDuplicates(self):
-        # Make a list with all the node data and remove the duplicates from that list
-        # Rebuild the list
+        # Rebuild the cllist by keeping track of the used node data
+        newNodeChain = self.head
 
-        nodeDataList = self.getNodeData()
-
-        # Create two pointers, one that starts at the beginning of the cllist, the other starts at the end, that will 'scan' the list
-        LP = 0                      # Left pointer
-        RP = len(nodeDataList) - 1  # Right pointer
-
-        # Create an empty list that will contain all the values that don't repeat themselves
-        noDuplicatesList = list()
-
-        while LP <= RP:
-            # Check if the value is not in the 'noDuplicatesList', if it's not, append it to the list
-            if nodeDataList[LP] not in noDuplicatesList:
-                noDuplicatesList.append(nodeDataList[LP])
-            if nodeDataList[RP] not in noDuplicatesList:
-                noDuplicatesList.append(nodeDataList[RP])
-            
-            # Increment left pointer | Decrement right pointer
-            LP += 1
-            RP -= 1
-    
-        
-        # Rebuild the list
-        self.head = Node( noDuplicatesList[0] )
+        prev = None
         current = self.head
-            
-        for nodeData in noDuplicatesList[1:]:
-            current.next = Node(nodeData)
-            current = current.next
+        nodeDataList = [self.head.data] 
 
-        current.next = self.head
+        while current:
+            nxt = current.next
+            if current.data not in nodeDataList:
+                newNodeChain.next = Node(current.data)
+                nodeDataList.append(current.data)
+                
+                prev = newNodeChain
+                newNodeChain = newNodeChain.next
+
+            current = nxt
+
+        newNodeChain.next = self.head
 
     def rotate(self, rotationValue):
         '''
@@ -713,6 +701,7 @@ class CircularLinkedList(object):
         allNodes.extend(cllist.getNodeData())
 
         return sum(allNodes)
+
 
     def splitInHalf(self):
         # Return 2 cllists with the values split in half from the main cllist ( self )
@@ -782,6 +771,7 @@ class CircularLinkedList(object):
         cllist_2.append(current.data)
 
         return [ cllist_1, cllist_2 ]
+
 
     def josephusProblem(self, step):
         current = self.head
