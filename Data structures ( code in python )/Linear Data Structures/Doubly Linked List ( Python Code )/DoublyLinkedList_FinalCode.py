@@ -37,11 +37,12 @@ class DoublyLinkedList(object):
         ~ Prepend                                            ( self.prepend(data) )                                                                         -> None                     [x]
 
         ~ Insert after node                                  ( self.insertAfterNode(node, data) )                                                           -> None                     [x]
-        ~ Insert after node data                             ( self.insertAfterNodeData(key, data) )                                                        -> None                     []
-        ~ Insert at index                                    ( self.insertAtIndex(index, data) )                                                            -> None                     []
+        ~ Insert after node data                             ( self.insertAfterNodeData(key, data) )                                                        -> None                     [x]
+        ~ Insert at index                                    ( self.insertAtIndex(index, data) )                                                            -> None                     [x]
 
         ~ Delete node                                        ( self.deleteNode(node) )                                                                      -> None                     []
         ~ Delete at index                                    ( self.deleteAtIndex(index) )                                                                  -> None                     []
+        ~ Delete node with data                              ( self.deleteNodeWithData(data) )                                                              -> None                     []
 
         ############################### INSERTION / DELETION  ###############################
 
@@ -142,6 +143,10 @@ class DoublyLinkedList(object):
         # Check if there is a head node in the dllist. If there is not, then create one and then return 
         if not self.head:
             self.head = Node(data)
+
+            # Increment the length of the dllist
+            self.length += 1
+
             return
 
         # Iterate over all the nodes in the list till we get to the last node
@@ -155,6 +160,9 @@ class DoublyLinkedList(object):
 
         appendNode.prev = current
         current.next = appendNode
+
+        # Increment the length of the dllist
+        self.length += 1
         
     def prepend(self, data):
         # Check the 'data' argument
@@ -164,6 +172,10 @@ class DoublyLinkedList(object):
         # Check if there is a head node in the dllist. If there is not, then create one and then return
         if not self.head:
             self.head = Node(data)
+
+            # Increment the length of the dllist
+            self.length += 1
+
             return
 
         # Create the prepend node and set its values, set new values for the current head as well and then update the head node of the dllist
@@ -173,6 +185,9 @@ class DoublyLinkedList(object):
         self.head.prev = prependNode
 
         self.head = prependNode
+
+        # Increment the length of the dllist
+        self.length += 1
 
     def insertAfterNode(self, node, data):
         # Check the node & data argument
@@ -198,28 +213,232 @@ class DoublyLinkedList(object):
             insertNode.next = nextNode
 
         insertNode.prev = current
+        current.next = insertNode
 
-        current.next = insertNode 
+        # Increment the length of the dllist
+        self.length += 1
+    
+    def insertAfterNodeData(self, key, data):
+        # Check the key & data
+        if not key or not data:
+            raise ValueError("The key & the passed in data arguments are not valid.")
 
+        # Iterate over the dllist and try to get the node with the specified 'key'
+        current = self.head
+
+        while current:
+            if current.data == key:
+                break
+            
+            current = current.next
+
+        if not current:
+            raise ValueError("The given 'key' argument couldn't be found in the dllist.")
+
+        # Create the insert node
+        insertNode = Node(data)
+
+        if current.next:
+            nextNode = current.next
+            nextNode.prev = insertNode 
+
+            insertNode.next = nextNode
+
+        insertNode.prev = current
+        current.next = insertNode
+
+        # Increment the length of the dllist
+        self.length += 1
+
+    def insertAtIndex(self, index, data):
+        # Check the index & the data
+        if index > self.length or index < 0:
+            raise IndexError("The given index is either too big for the dllist or it's too small ( < 0 )")
+
+        if not data:
+            raise ValueError("The given data value must be valid.")
+
+        # In case the index is the length of the dllist, append a new node to the dllist with the given data
+        if index == self.length:
+            self.append(data)
+            
+            # Increment the length of the dllist
+            self.length += 1
+
+            return
+
+        # Iterate over the dllist and get to the given index by keeping track of the current index and of the current node
+        current = self.head
+        indexTrack = 0
+
+        while indexTrack < index:
+            current = current.next
+            indexTrack += 1
+        
+        # Create the insert node
+        insertNode = Node(data)
+
+        if current.next:
+            nextNode = current.next
+
+            nextNode.prev = insertNode
+            insertNode.next = nextNode
+
+        insertNode.prev = current
+        current.next = insertNode
+
+        # Increment the length of the dllist
+        self.length += 1
+
+    def deleteNode(self, node):
+        # Check the node
+        if type(node) != Node:
+            raise ValueError("The passed in 'node' argument must be of type 'Node'")
+
+        # Iterate over the dllist till we find the given node ( keep track of the current & previous node )
+        current = self.head
+
+        while current:
+            if current == node:
+                break
+
+            prev = current 
+            current = current.next
+
+        # Check if the current node is the node that we got in the args, if not raise ValueError
+        if not current:
+            raise ValueError("The passed in node couldn't be found in the dllist.")
+
+        # Check if the node that must be deleted is a the head node 
+        if current == self.head:
+            if current.next:
+                nextNode = current.next
+
+                nextNode.prev = None
+            
+            self.head = current.next
+            current = None
+        
+            # Decrement length of the dllist
+            self.length -= 1
+
+            return
+
+        # The node that must be deleted is not the head node, so modify the changes of the previous & next node without making any changes to self.head
+        prev = current.prev
+
+        if current.next:
+            nextNode = current.next
+
+            nextNode.prev = prev
+        
+        prev.next = current.next
+        current = None
+
+        # Decrement the length of the dllist
+        self.length -= 1
+
+    def deleteNodeAtIndex(self, index):
+        # Check the given index
+        if index >= self.length or index < 0:
+            raise IndexError("The given index either too big for the dllist or it's too small ( < 0 ).")
+
+        # Iterate over the dllist while keeping track of the current node and of the index
+        current = self.head
+        indexTrack = 0
+
+        while indexTrack < index:
+            current = current.next
+            indexTrack += 1
+
+        # Check if the node that must be deleted is the head node
+        if index == 0:
+            if self.head.next:
+                nextNode = self.head.next
+
+                nextNode.prev = None
+
+            self.head = self.head.next
+
+            # Decrement the length of the dllist
+            self.length -= 1
+        
+        # The current node is not the head node
+        prev = current.prev
+
+        if current.next:
+            nextNode = current.next
+
+            nextNode.prev = prev
+            
+        prev.next = current.next
+
+        # Decrement the length of the list
+        self.length -= 1
+
+    def deleteNodeWithData(self, data):
+        # Check the passed in 'data' value
+        if not data:
+            raise ValueError("The passed in data value is not valid.")
+
+        # Iterate over the dllist and keep track of the current node. If the current node will have the same value as the 'data' arg, break the loop
+        current = self.head
+
+        while current:
+            if current.data == data:
+                break
+
+            current = current.next
+
+        # Check the current node
+        if not current:
+            raise ValueError("The passed in 'data' value couldn't be found in the dllist.")
+
+        # Check if the current node is the head node
+        if current == self.head:
+            if current.next:
+                nextNode = current.next
+
+                nextNode.prev = None
+
+            self.head = current.next
+            current = None
+
+            # Decrement the length of the dllist
+            self.length -= 1
+
+            return
+
+        # The current node is not the head node - >
+        prev = current.prev
+        if current.next:
+            nextNode = current.next
+
+            nextNode.prev = prev
+
+        prev.next = current.next
+
+        # Decrement the length of the dllist
+        self.length -= 1
 
     ############################### INSERTION / DELETION ###############################
 
 dllist = DoublyLinkedList()
 
-for i in list(range(1, 5)):
+for i in list(range(1, 11)):
     dllist.append(i)
 
-print(" START :" )
+print(" START ( length : {0} ) : ".format(len(dllist)))
 pprint.pprint(dllist.getNodeData(), indent = 50)
 
 for i in range(3):
     print()
 
-dllist.insertAfterNode(dllist.head.next.next.next, "A")
+dllist.deleteNodeAtIndex(4)
 
 for i in range(3):
     print()
 
-print(" END: ")
+print(" END ( length : {0} ) : ".format(len(dllist)))
 pprint.pprint(dllist.getNodeData(), indent = 50)
 print("CHECK : {0}".format(dllist.check()))
