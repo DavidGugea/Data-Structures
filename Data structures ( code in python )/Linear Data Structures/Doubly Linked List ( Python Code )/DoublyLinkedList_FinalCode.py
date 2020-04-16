@@ -1,4 +1,5 @@
 import pprint
+import random
 
 class Node(object):
     def __init__(self, data):
@@ -6,6 +7,68 @@ class Node(object):
 
         self.prev = None
         self.next = None
+
+class QuickSort(object):
+    def medianOfThree(self, arr, low, high):
+        if len(arr) >= 3:
+            # Get the first, middle & last item
+            start_middle_last = [ arr[low], arr[ ( low + high ) // 2 ], arr[high] ]
+
+            # Sort it
+            start_middle_last.sort()
+
+            # Return the index of the middle item
+            return arr.index(start_middle_last[1])
+        else:
+            return random.randint(low, high)
+    def partition(self, arr, low, high):
+        # Get the pivot index
+        pivotIndex = self.medianOfThree(arr, low, high)
+        pivot = arr[pivotIndex]
+
+        # Swap the pivot index with the last element from the list to 'get it from our way'
+        arr[pivotIndex], arr[high] = arr[high], arr[pivotIndex]
+
+        # Update the pivot index
+        pivotIndex = high
+
+        # Create two pointers that will scan the list from both sides
+        LP = low        # left pointer  ( swap when arr[LP] > pivot ) 
+        RP = high - 1   # right pointer ( swap when arr[RP] < pivot )
+
+        while LP <= RP:
+            if arr[LP] > pivot and arr[RP] < pivot:
+                # Swap [LP] & [RP] 
+                arr[LP], arr[RP] = arr[RP], arr[LP]
+    
+                # Increment left pointer value
+                LP += 1
+                # Decrement right pointer value
+                RP -= 1
+            elif arr[LP] < pivot:
+                # Increment left pointer value
+                LP += 1
+            elif arr[RP] > pivot:
+                # Decrement right pointer value
+                RP -= 1
+
+
+        # Swap the pivot with the [LP] value, because we found the place for the pivot
+        arr[LP], arr[pivotIndex] = arr[pivotIndex], arr[LP]
+
+        # Update the pivot index
+        pivotIndex = LP
+
+        # Return the 'border' split value
+        return pivotIndex
+    def quickSort(self, arr, low, high):
+        if low <= high:
+            partitionBorderIndex = self.partition(arr, low, high)
+
+            self.quickSort(arr, low, partitionBorderIndex - 1)
+            self.quickSort(arr, partitionBorderIndex + 1, high)
+    def sort(self, arr):
+        self.quickSort(arr, 0, len(arr) - 1)
 
 class DoublyLinkedList(object):
     def __init__(self):
@@ -49,17 +112,17 @@ class DoublyLinkedList(object):
         ############################### OTHERS ###############################
 
         ~ Node swap  ( input : nodes to be swaped )                                     ( self.swapNodes(node1, node2) )                                    -> None                     [x]
-        ~ Node swap  ( input : indexes of the nodes that need to be swapped )           ( self.swapNodesAtIndexes(index1, index2) )                         -> None                     []
-        ~ Instant Node Swap ( input : nodes to be swaped )                              ( self.instantNodeSwap(node1, nod2) )                               -> None                     []
-        ~ Instant Node Swap ( input : indexes of the node that need to be swaped )      ( self.instantNodesSwapAtIndexes(index1, index2) )                  -> None                     []
+        ~ Node swap  ( input : indexes of the nodes that need to be swapped )           ( self.swapNodesAtIndexes(index1, index2) )                         -> None                     [x]
+        ~ Instant Node Swap ( input : nodes to be swaped )                              ( self.instantNodeSwap(node1, nod2) )                               -> None                     [x]
+        ~ Instant Node Swap ( input : indexes of the node that need to be swaped )      ( self.instantNodesSwapAtIndexes(index1, index2) )                  -> None                     [x]
 
-        ~ Reverse                                                                       ( self.reverse() )                                                  -> None                     []
+        ~ Reverse                                                                       ( self.reverse() )                                                  -> None                     [x]
 
-        ~ Merge ( both sorted )                                                         ( self.mergeBothSorted(cllist) )                                    -> None                     []
-        ~ Merge ( both unsorted )                                                       ( self.mergeBothUnsorted(cllist) )                                  -> None                     []
+        ~ Merge ( both sorted )                                                         ( self.mergeBothSorted(dllist_merge) )                              -> None                     [x]
+        ~ Merge ( both unsorted )                                                       ( self.mergeBothUnsorted(dllist_merge) )                            -> None                     [x]
 
-        ~ Remove duplicates                                                             ( self.removeDuplicates() )                                         -> None                     []
-        ~ Rotate                                                                        ( self.rotate(rotationValue) )                                      -> None                     []
+        ~ Remove duplicates                                                             ( self.removeDuplicates() )                                         -> None                     [x]
+        ~ Rotate                                                                        ( self.rotate(rotationValue) )                                      -> None                     [x]
 
         ~ Is palindrome                                                                 ( self.isPalindrome() )                                             -> True / False             []
 
@@ -559,11 +622,185 @@ class DoublyLinkedList(object):
         # Swap the data of the nodes
         node1.data, node2.data = node2.data, node1.data
 
+    def reverse(self):
+        # Reverse the direction of the arrows ( .next & .prev ) for each node while iterating over all nodes
+        prev = None
+        current = self.head
+        while current:
+            nxtNode = current.next
+            current.prev, current.next = current.next, current.prev
+
+            prev = current
+            current = nxtNode
+
+        self.head = prev
+
+    def mergeBothSorted(self, dllist_merge):
+        # Check the dllist_merge argument
+        if type(dllist_merge) != DoublyLinkedList:
+            raise ValueError("The passed in dllist_merge argument must be a DoublyLinkedList class.")
+            
+        ###############################################
+        # EXAMPLE :                                  ##
+        # dllist_1 => [1, 5, 7, 9, 10]               ##
+        # dllist_2 => [2, 3, 4, 6, 8 ]               ##
+        # After merge:                               ##
+        # dllist_1 => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]##
+        ###############################################
+
+        # Create the pointers
+        mp = None               # main pointer
+        up = self.head          # up pointer   ( the pointer that iterates over the main dllist ( self ) )
+        dp = dllist_merge.head  # down pointer ( the pointer that iterates over the dllist_merge         ) 
+
+        # Find the place for the main pointer
+        if up.data <= dp.data:
+            mp = self.head
+            up = up.next
+        elif up.data > dp.data:
+            mp = dllist_merge.head
+            dp = dp.next
+    
+        firstNode = mp
+
+        while up and dp:
+            if mp.data < dp.data and dp.data < up.data:
+                # Create a new node with the same data as the dp node
+                newNode = Node(dp.data)
+    
+                # update the pointer
+                dp = dp.next
+
+                # Change the previous pointer to the node to point to the main node that we are at now
+                newNode.prev = mp
+                
+                # Make the main pointer .next value the new node that we create
+                mp.next = newNode
+            elif mp.data < up.data and up.data < dp.data:
+                # Same as above
+                newNode = Node(up.data)
+
+                up = up.next
+
+                newNode.prev = mp 
+                mp.next = newNode
+
+            # Change the main pointer location
+            mp = mp.next
+            
+        # Change the head node of the dllist
+        self.head = firstNode
+
+        # Add leftovers
+        while up:
+            newNode = Node(up.data)
+
+            newNode.prev = mp
+            mp.next = newNode
+
+            up = up.next
+            mp = mp.next
+
+        while dp:
+            newNode = Node(dp.data)
+
+            newNode.prev = mp
+            mp.next = newNode
+
+            dp = dp.next
+            mp = mp.next
+    
+    def mergeBothUnsorted(self, dllist_merge):
+        # Steps:
+        # ~ 1. Get the node data from both lists in a bigger list
+        # ~ 2. Sort the node data list using quick sort ( median of three strategy )
+        # ~ 3. Rebuild dllist
+
+        # ~ 1.
+        nodeDataList = self.getNodeData() + dllist_merge.getNodeData() 
+
+        # ~ 2.
+        quickSort_alg = QuickSort()
+        quickSort_alg.sort(nodeDataList)
+
+        # ~ 3.
+        current = Node(nodeDataList[0])
+        self.head = current
+
+        for nodeData in nodeDataList[1:]:
+            newNode = Node(nodeData)
+
+            newNode.prev = current
+            current.next = newNode
+
+            current = current.next
+    
+    def removeDuplicates(self):
+        # Keep track of the used node data
+        usedNodeData = [self.head.data]
+
+        # Create two pointers
+        mp = self.head       # main pointer ( the one that rebuilds the node structure )
+        sp = self.head.next  # scan pointer ( the one that iterates over all the nodes in the list checking for their data )
+            
+        while sp:
+            # Check if the scan pointer data has already been used
+            if sp.data not in usedNodeData:
+                # Create a new node with the data
+                newNode = Node(sp.data)
+
+                # Set the .prev for the new node & the .next for the main pointer 
+                newNode.prev = mp
+                mp.next = newNode
+            
+                # Update the main pointer
+                mp = mp.next
+
+                # Add the used node data to the list so that we will know next time that this data has already been used
+                usedNodeData.append(sp.data)
+            
+            sp = sp.next
+    
+    def rotate(self, rotationValue):
+        # Check the rotation value
+        if rotationValue > self.length:
+            raise ValueError("The given rotation value if bigger than the length of the dllist. Try again with a smaller value. ( <= self.length ).")
+
+        beforeRotationValue = None
+        mainRotationNode = None
+        lastNode = None
+
+        prev = None
+        current = self.head
+        counter = 0
+
+        while current: 
+            if counter == rotationValue:
+                mainRotationNode = current
+                beforeRotationValue = current.prev 
+
+
+            counter += 1
+
+            prev = current
+            current = current.next
+            
+    
+        lastNode = prev
+
+        beforeRotationValue.next = None
+        lastNode.next = self.head
+        self.head.prev = lastNode
+
+        mainRotationNode.prev = None
+        self.head = mainRotationNode
+
+
     ############################### OTHERS ###############################
 
 dllist = DoublyLinkedList()
 
-for i in list(range(1, 6)):
+for i in list(range(10, 61, 10)): 
     dllist.append(i)
 
 print(" START ( length : {0} ) : ".format(len(dllist)))
@@ -572,8 +809,7 @@ pprint.pprint(dllist.getNodeData(), indent = 50)
 for i in range(3):
     print()
 
-# 0 1 2 3 4
-dllist.instantNodeSwap(dllist.head, dllist.head.next.next.next)
+dllist.rotate(4)
 
 for i in range(3):
     print()
