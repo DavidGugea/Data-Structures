@@ -355,52 +355,29 @@ class DoublyLinkedList(object):
 
         # Increment the length of the dllist
         self.length += 1
-
+    
     def deleteNode(self, node):
         # Check the node
         if type(node) != Node:
             raise ValueError("The passed in 'node' argument must be of type 'Node'")
+           
+        if node != self.head and node.next: 
+           prev = node.prev
+           nxt  = node.next
 
-        # Iterate over the dllist till we find the given node ( keep track of the current & previous node )
-        current = self.head
+           prev.next = nxt
+           nxt.prev = prev 
+        elif node == self.head:
+            nxt = node.next
 
-        while current:
-            if current == node:
-                break
+            nxt.prev = None
+            self.head = nxt
+        elif node != self.head and not node.next:
+            prev = node.prev
+            prev.next = None
 
-            prev = current 
-            current = current.next
-
-        # Check if the current node is the node that we got in the args, if not raise ValueError
-        if not current:
-            raise ValueError("The passed in node couldn't be found in the dllist.")
-
-        # Check if the node that must be deleted is a the head node 
-        if current == self.head:
-            if current.next:
-                nextNode = current.next
-
-                nextNode.prev = None
-            
-            self.head = current.next
-            current = None
+        node = None
         
-            # Decrement length of the dllist
-            self.length -= 1
-
-            return
-
-        # The node that must be deleted is not the head node, so modify the changes of the previous & next node without making any changes to self.head
-        prev = current.prev
-
-        if current.next:
-            nextNode = current.next
-
-            nextNode.prev = prev
-        
-        prev.next = current.next
-        current = None
-
         # Decrement the length of the dllist
         self.length -= 1
 
