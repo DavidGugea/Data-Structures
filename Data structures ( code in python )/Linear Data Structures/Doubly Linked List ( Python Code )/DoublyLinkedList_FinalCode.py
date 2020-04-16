@@ -1,5 +1,6 @@
 import pprint
 import random
+import itertools
 
 class Node(object):
     def __init__(self, data):
@@ -124,16 +125,16 @@ class DoublyLinkedList(object):
         ~ Remove duplicates                                                             ( self.removeDuplicates() )                                         -> None                     [x]
         ~ Rotate                                                                        ( self.rotate(rotationValue) )                                      -> None                     [x]
 
-        ~ Is palindrome                                                                 ( self.isPalindrome() )                                             -> True / False             []
+        ~ Is palindrome                                                                 ( self.isPalindrome() )                                             -> True / False             [x]
 
-        ~ Move tail to head                                                             ( self.moveTailToHead() )                                           -> None                     []
-        ~ Sum with another dllist                                                       ( self.sumWithDLLIST() )                                            -> number                   []
+        ~ Move tail to head                                                             ( self.moveTailToHead() )                                           -> None                     [x]
+        ~ Sum with another dllist                                                       ( self.sumWithDLLIST(sum_dllist) )                                  -> number                   [x]
 
-        ~ Split list in half                                                            ( self.splitInHalf() )                                              -> [ dllist1, dllist2 ]     []
-        ~ Split list after node                                                         ( self.splitAfterNode(node) )                                       -> [ dllist1, dllist2 ]     []
-        ~ Split list at index                                                           ( self.splitAtIndex(index) )                                        -> [ dllist1, dllist2 ]     [] 
+        ~ Split list in half                                                            ( self.splitInHalf() )                                              -> [ dllist1, dllist2 ]     [x]
+        ~ Split list after node                                                         ( self.splitAfterNode(node) )                                       -> [ dllist1, dllist2 ]     [x]
+        ~ Split list at index                                                           ( self.splitAtIndex(index) )                                        -> [ dllist1, dllist2 ]     [x] 
 
-        ~ Pairs with sum                                                                ( self.pairsWithSum(sum_value) )                                    -> [ (), () .. () ]         []
+        ~ Pairs with sum                                                                ( self.pairsWithSum(sum_value) )                                    -> [ (), () .. () ]         [x]
 
         ############################### OTHERS ###############################
         '''
@@ -795,25 +796,139 @@ class DoublyLinkedList(object):
         mainRotationNode.prev = None
         self.head = mainRotationNode
 
+    def isPalindrome(self):
+        # Get all the node data in a string and see if the string upsidedown is the same as the normal node data string
+        nodeString = str()
+        
+        current = self.head
+        
+        while current:
+            nodeString += str(current.data)
+
+            current = current.next
+
+        return nodeString == nodeString[::-1]
+
+    def moveTailToHead(self):
+        # Swap the last node with the head node by iterating over the entire dllist till you get the last node and modify the values for the previous, last & head node
+        
+        current = self.head
+        while current.next:
+            current = current.next
+        
+        # Get the previous node of the last node and modify it so, that it will be the last node ( no .next < = > .next = None)  
+        prev = current.prev
+        prev.next = None
+
+        # Modify the values of the last node so that it will be like the 'head' node ( .prev is None & .next is the current .head that we have now ) 
+        current.next = self.head
+        self.head.prev = current
+        current.prev = None
+
+        # Update the head node to be the last node
+        self.head = current
+        
+    def sumWithDLLIST(self, sum_dllist):
+        # Create the sum & set it to 0 by default.
+        sum_ = 0
+
+        # Create two pointers for both dllists
+        p = self.head       # pointer for our dllist, for the main dllist ( self       )
+        q = sum_dllist.head # pointer for the dllist argument, sum_dllist ( sum_dllist )
+
+        # Iterate over both lists and check if the values are numbers, if that is the case, add them to the sum_ value
+        while p or q:
+            if p:
+                if type(p.data) == int or type(p.data) == float:
+                    sum_ += eval(str(p.data))
+                
+                p = p.next
+    
+            if q:
+                if type(q.data) == int or type(q.data) == float:
+                    sum_ += eval(str(q.data))
+
+                q = q.next
+
+        return sum_
+    
+    def splitInHalf(self):
+        # Create two new dllists and add all the node data in the first one till it hits the half of our list, after that add all the node that in the second dllist
+        dllist_1 = DoublyLinkedList()
+        dllist_2 = DoublyLinkedList()
+
+        # Create the border ( represents the half of the dllist ) 
+        border = self.length // 2
+
+        # Keep track of the index & of the current node
+        indexTrack = 0
+        current = self.head
+
+        while current:
+            if indexTrack < border:
+                dllist_1.append(current.data)
+            elif indexTrack >= border:
+                dllist_2.append(current.data)
+
+            current = current.next
+            indexTrack += 1
+
+        return [ dllist_1, dllist_2 ]
+    
+    def splitAfterNode(self, node):
+        # Check the node
+        if type(node) != Node or not node:
+            raise ValueError("The given node must have a 'Node' type and it can't be None.")
+
+        # Create two dllists and keep track of the current node, while the current node didn't hit the node given as an argument, add it to the first dllist, otherwise add it to the second dllist
+        dllist_1 = DoublyLinkedList()
+        dllist_2 = DoublyLinkedList()
+
+        current = self.head
+        hitNode = False
+
+        while current:
+            if not hitNode:
+                dllist_1.append(current.data)
+            if hitNode:
+                dllist_2.append(current.data)
+
+            if current == node:
+                hitNode = True
+
+            current = current.next
+
+        return [ dllist_1, dllist_2 ]
+    
+    def splitAtIndex(self, index):
+        # Check the index
+        if index >= self.length or index < 0:
+            raise IndexError("The given index is either too big for the dllist or it is too small ( < 0 ).")
+
+        # Create two dllists and keep track of the index & of the current node
+        dllist_1 = DoublyLinkedList()
+        dllist_2 = DoublyLinkedList()
+
+        current = self.head
+        indexTrack = 0
+
+        while current:
+            if indexTrack < index:
+                dllist_1.append(current.data)
+            if indexTrack >= index:
+                dllist_2.append(current.data)
+
+            current = current.next
+            indexTrack += 1 
+
+        return [ dllist_1, dllist_2 ]
+
+    def pairsWithSum(self, sum_value):
+        sums_ = list()
+        for permutation in list(itertools.permutations(self.getNodeData(), 2)):
+            if sum(list(permutation)) == sum_value and tuple(permutation) not in sums_ and tuple(list(permutation)[::-1]) not in sums_:
+                sums_.append(tuple(permutation))
+
+        return sums_
 
     ############################### OTHERS ###############################
-
-dllist = DoublyLinkedList()
-
-for i in list(range(10, 61, 10)): 
-    dllist.append(i)
-
-print(" START ( length : {0} ) : ".format(len(dllist)))
-pprint.pprint(dllist.getNodeData(), indent = 50)
-
-for i in range(3):
-    print()
-
-dllist.rotate(4)
-
-for i in range(3):
-    print()
-
-print(" END ( length : {0} ) : ".format(len(dllist)))
-pprint.pprint(dllist.getNodeData(), indent = 50)
-print("CHECK: {0}".format(dllist.check()))
