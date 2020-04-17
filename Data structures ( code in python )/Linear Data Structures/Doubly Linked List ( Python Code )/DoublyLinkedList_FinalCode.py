@@ -263,27 +263,22 @@ class DoublyLinkedList(object):
         if type(node) != Node:
             raise ValueError("The given 'node' argument must be a node type value")
 
-        # Iterate over all the nodes in the list, once it hits the node, insert the new node
-        current = self.head
-
-        while current != node and current:
-            current = current.next
-
-        # Create the insert node
+        # Create the insert node & modify the .next & .prev values for the current & next node
         insertNode = Node(data)
 
-        if current.next:
-            nextNode = current.next
-            nextNode.prev = insertNode
+        nxt = node.next
 
-            insertNode.next = nextNode
+        insertNode.prev = node
+        insertNode.next = nxt
 
-        insertNode.prev = current
-        current.next = insertNode
+        if nxt:
+            nxt.prev = insertNode
+
+        node.next = insertNode
 
         # Increment the length of the dllist
         self.length += 1
-    
+
     def insertAfterNodeData(self, key, data):
         # Check the key & data
         if not key or not data:
