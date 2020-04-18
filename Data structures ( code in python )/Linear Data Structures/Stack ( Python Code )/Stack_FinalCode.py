@@ -294,32 +294,32 @@ class Stack(object):
     
     def checkParanthesis(self, givenString):
         # Create a stack that will have all the chars that the upside given string has and then the track list, that keep track of opened paranthesis
-        mainTrack = Stack()
+        mainStack = Stack()
         track = list()
         
         # Add all the chars of the upside given string in the main stack
         for char in givenString[::-1]:
-            mainTrack.push(char)
+            mainStack.push(char)
             
         # Create two lists that define what "opened" & "closed" paranthesis mean
         opened = [ "{", "[", "(" ]
         closed = [ "}", "]", ")" ]
     
         # Iterate over the entire stack
-        while not mainTrack.is_empty():
-            if mainTrack.peek() in opened:
-                # If we have an opened paranthesis we must add it to the track, and delete it after that from the mainTrack
-                track.append(mainTrack.peek())
-                mainTrack.pop()
-            elif mainTrack.peek() in closed and track:
+        while not mainStack.is_empty():
+            if mainStack.peek() in opened:
+                # If we have an opened paranthesis we must add it to the track, and delete it after that from the mainStack
+                track.append(mainStack.peek())
+                mainStack.pop()
+            elif mainStack.peek() in closed and track:
                 # Check if the paranthesis is closed and the track list exists, because there is also the case where the string can start like this : ']...', which, if it does, it can't be a valid paranthesis string anymore because it started with a closed paranthesis, so also because of that our 'track' list is empty, so this part of the code won't execute, and on the next one, on 'else' we will just return False.
                 # Because this is a closed paranthesis, and we know that we already have some opened paranthesis because 'track' is not empty, we will have to check if the paranthesis that we have know, matches the last opened paranthesis that we had back in the string
-                paranthesis = mainTrack.peek()
+                paranthesis = mainStack.peek()
                 
                 if ( track[-1] == "{" and paranthesis != "}" ) or ( track[-1] == "[" and paranthesis != "]" ) or ( track[-1] == "(" and paranthesis != ")" ):
                     return False # the paranthesis don't match, so return False
                 else:
-                    mainTrack.pop()
+                    mainStack.pop()
                     del track[-1]
             else:
                 return False
