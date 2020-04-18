@@ -279,7 +279,7 @@ class Stack(object):
         reversedString = str()
         
         while not stringStack.is_empty():
-            reverseString += stringStack.pop()
+            reversedString += stringStack.pop()
         
         return reversedString
     
