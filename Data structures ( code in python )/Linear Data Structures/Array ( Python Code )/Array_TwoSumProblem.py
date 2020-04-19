@@ -8,7 +8,11 @@ def twoSumProblem_myCode(array, target):
     for permutation in list(itertools.permutations(array, 2)):
         if sum(permutation) == target:
             return tuple(permutation)
+<<<<<<< HEAD
     return None
+=======
+    return None 
+>>>>>>> Array_PythonCode
 
 def twoSumProblem_noItertools_myCode(array, target):
     # Get the difference of numbers using a hashtable
