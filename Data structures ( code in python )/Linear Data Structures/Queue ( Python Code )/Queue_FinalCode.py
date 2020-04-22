@@ -92,7 +92,7 @@ class Queue(object):
         ######################################### OTHERS ###################################################
 
         ~ Insert after item                         ( self.insertAfterItem(data, item, startIndex = 0)      )   -> None              [x]
-        ~ Insert at index                           ( self.insertAtIndex(index, item, startIndex = 0)       )   -> None              [x]
+        ~ Insert at index                           ( self.insertAtIndex(index, item)                       )   -> None              [x]
         
         ~ Delete at index                           ( self.deleteAtIndex(index)                             )   -> None              [x]
         ~ Delete item with data                     ( self.deleteItemWithData(data, startIndex = 0)         )   -> None              [x]
