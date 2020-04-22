@@ -259,7 +259,7 @@ class Queue(object):
         self.front = self.items[-1]
 
     def removeDuplicates(self):
-        self.items = list(set(self.items))
+        self.items = list(set(self.items))[::-1]
         
         self.rear = self.items[0]
         self.front = self.items[-1]
@@ -288,10 +288,8 @@ class Queue(object):
         # After 'moving the tail to head'
         # self.items => [60, 10, 20, 30, 40, 50]
 
-        self.items.insert(0, self.items.pop())
-
-        self.rear = self.items[0]
-        self.front = self.items[-1]
+        self.items[0], self.items[-1] = self.items[-1], self.items[0]
+        self.rear, self.front = self.front, self.rear
 
     def sumWith(self, sum_queue):
         # Example:
@@ -324,30 +322,3 @@ class Queue(object):
         return pairs
 
     ######################################### OTHERS ###################################################
-
-q = Queue()
-for i in list(range(1, 6)):
-    q.enqueue(i)
-print(q.get_queue())
-
-for i in range(2):
-    print()
-
-print("FRONT ITEM -- > {0}".format(q.getFront()))
-print("REAR ITEM  -- > {0}".format(q.getRear()))
-
-for i in range(2):
-    print() 
-
-
-
-for i in range(2):
-    print()
-
-print("FRONT ITEM -- > {0}".format(q.getFront()))
-print("REAR ITEM  -- > {0}".format(q.getRear()))
-
-for i in range(2):
-    print()
-
-print(q.get_queue())
