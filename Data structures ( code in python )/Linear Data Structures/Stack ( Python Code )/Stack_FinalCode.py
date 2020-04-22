@@ -100,35 +100,35 @@ class Stack(object):
 
         ######################################### OTHERS ###################################################
 
-        ~ Insert after item                         ( self.insertAfterItem(data, item)      )   -> None              [x]
-        ~ Insert at index                           ( self.insertAtIndex(index, item)       )   -> None              [x]
+        ~ Insert after item                         ( self.insertAfterItem(data, item, startIndex = 0)      )   -> None              [x]
+        ~ Insert at index                           ( self.insertAtIndex(index, item)                       )   -> None              [x]
         
-        ~ Delete at index                           ( self.deleteAtIndex(index)             )   -> None              [x]
-        ~ Delete item with data                     ( self.deleteItemWithData(data)         )   -> None              [x]
+        ~ Delete at index                           ( self.deleteAtIndex(index)                             )   -> None              [x]
+        ~ Delete item with data                     ( self.deleteItemWithData(data, startIndex = 0 )        )   -> None              [x]
 
-        ~ Swap                                      ( self.swap(index1, index2)             )   -> None              [x]
+        ~ Swap                                      ( self.swap(index1, index2)                             )   -> None              [x]
         
-        ~ Reverse                                   ( self.reverse()                        )   -> None              [x]
+        ~ Reverse                                   ( self.reverse()                                        )   -> None              [x]
         
-        ~ Merge two stacks                          ( self.basicMerge(merge_stack)          )   -> None              [x]
-        ~ Merge two stacks in sorted order          ( self.sortedMerge(merge_stack)         )   -> None              [x]
+        ~ Merge two stacks                          ( self.basicMerge(merge_stack)                          )   -> None              [x]
+        ~ Merge two stacks in sorted order          ( self.sortedMerge(merge_stack)                         )   -> None              [x]
 
-        ~ Remove duplicates                         ( self.removeDuplicates()               )   -> None              [x]
-        ~ Rotate                                    ( self.rotate(rotation_value)           )   -> None              [x]
+        ~ Remove duplicates                         ( self.removeDuplicates()                               )   -> None              [x]
+        ~ Rotate                                    ( self.rotate(rotation_value)                           )   -> None              [x]
 
-        ~ Is palindrome                             ( self.isPalindrome()                   )   -> True/False        [x]
+        ~ Is palindrome                             ( self.isPalindrome()                                   )   -> True/False        [x]
 
-        ~ Move tail to head                         ( self.moveTailToHead()                 )   -> None              [x]
-        ~ Sum with another stack DS                 ( self.sumWith(sum_stack)               )   -> None              [x]
+        ~ Move tail to head                         ( self.moveTailToHead()                                 )   -> None              [x]
+        ~ Sum with another stack DS                 ( self.sumWith(sum_stack)                               )   -> None              [x]
 
-        ~ Split stack in half                       ( self.splitInHalf()                    )   -> [stack1, stack2]  [x]
-        ~ Split at index                            ( self.splitAtIndex(index)              )   -> [stack1, stack2]  [x]
+        ~ Split stack in half                       ( self.splitInHalf()                                    )   -> [stack1, stack2]  [x]
+        ~ Split at index                            ( self.splitAtIndex(index)                              )   -> [stack1, stack2]  [x]
 
-        ~ Pairs with sum                            ( self.pairsWithSum(sum_value)          )   -> [ (), (), .. () ] [x]
+        ~ Pairs with sum                            ( self.pairsWithSum(sum_value)                          )   -> [ (), (), .. () ] [x]
 
-        ~ Reverse a string using the stack          ( self.reverseString(givenString)       )   -> string            [x]
-        ~ Convert integer to binary using the stack ( self.convertIntegerToBinary(integer)  )   -> string            [x] 
-        ~ Check paranthesis string using the stack  ( self.checkParanthesis(givenString)    )   -> string            [x]
+        ~ Reverse a string using the stack          ( self.reverseString(givenString)                       )   -> string            [x]
+        ~ Convert integer to binary using the stack ( self.convertIntegerToBinary(integer)                  )   -> string            [x] 
+        ~ Check paranthesis string using the stack  ( self.checkParanthesis(givenString)                    )   -> string            [x]
 
         ######################################### OTHERS ###################################################
        
@@ -174,8 +174,8 @@ class Stack(object):
 
     ######################################### OTHERS ###################################################
 
-    def insertAfterItem(self, data, item):
-        self.items.insert(self.items.index(item)+1, data)
+    def insertAfterItem(self, data, item, startIndex = 0):
+        self.items.insert(self.items.index(item, startIndex)+1, data)
 
     def insertAtIndex(self, index, item):
         # Check the index
@@ -191,8 +191,8 @@ class Stack(object):
 
         del self.items[index]
 
-    def deleteItemWithData(self, data):
-        del self.items[ self.items.index(data) ]
+    def deleteItemWithData(self, data, startIndex = 0):
+        del self.items[ self.items.index(data, startIndex) ]
 
     def swap(self, index1, index2):
         # Check the indexes
