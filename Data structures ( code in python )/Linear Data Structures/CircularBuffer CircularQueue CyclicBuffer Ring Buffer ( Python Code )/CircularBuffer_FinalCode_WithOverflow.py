@@ -47,6 +47,9 @@ class CircularBuffer(object):
         ''' Return a dict. with the index as key & the item in the buffer as value '''
         return { self.tail : self.items[self.tail] }  
 
+    def getSize(self):
+        ''' Return the number of elements that have been enqueued to the buffer '''
+        return self.counter
 
     def resetBuffer(self):
         ''' Resets the buffer to it's default indexes '''
