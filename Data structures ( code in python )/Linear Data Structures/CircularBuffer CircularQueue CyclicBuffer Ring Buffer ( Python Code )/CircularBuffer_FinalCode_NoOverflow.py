@@ -82,7 +82,7 @@ class CircularBuffer(object):
         if self.head == self.capacity:
             self.head = 0
 
-        # In case that the counter is 0, set the self.IS_EMPTY_FLAG property to True 
+        # In case that the counter is 0, set the self.IS_EMPTY_FLAG property to True  
         if self.counter == 0:
             self.IS_EMPTY_FLAG = True
             # In case that the user chose to reset the buffer after a full deletion, reset the buffer using the self.resetBuffer() method.
