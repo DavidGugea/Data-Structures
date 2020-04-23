@@ -40,7 +40,7 @@ class CircularBuffer(object):
         elif self.tail < self.head:
             return self.items[self.head:] + self.items[:self.tail + 1]
     
-    def resetBuffer(self)
+    def resetBuffer(self):
         ''' Reset the buffer meaning that we reset both self.head & self.tail to -1 ( as by default in the constructor ) '''
         self.head = -1
         self.tail = -1
