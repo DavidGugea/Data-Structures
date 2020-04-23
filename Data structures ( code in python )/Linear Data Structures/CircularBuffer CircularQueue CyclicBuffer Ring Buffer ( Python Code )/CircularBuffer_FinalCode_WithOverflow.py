@@ -14,7 +14,7 @@ class CircularBuffer(object):
         self.resetBuffer_AfterFullDeletion = resetBuffer_AfterFullDeletion
 
         # Indicates if the buffer is empty or not by keeping track of the counter of the items
-        self.IS_EMPTY_FLAG = False
+        self.IS_EMPTY_FLAG = True
 
     def is_empty(self):
         # Return is_empty if the head & tail are both -1 ( this is how the buffer indexes start ) or if the is_empty_flag True is or not 
