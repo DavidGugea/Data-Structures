@@ -87,4 +87,4 @@ class CircularBuffer(object):
             self.IS_EMPTY_FLAG = True
             # In case that the user chose to reset the buffer after a full deletion, reset the buffer using the self.resetBuffer() method.
             if self.resetAfter_FullDeletion:
-                self.resetBuffer()
+                self.resetBuffer() 
