@@ -35,7 +35,7 @@ class Node(object):
         self.address_store = prev_address ^ next_address
 
     def getNextNode(self, prev_node):
-        if not self.address_store:
+        if self.address_store == None:
             raise Exception("The node doesn't have a store address. Set the near nodes first.")
 
         if prev_node:
@@ -47,7 +47,7 @@ class Node(object):
         return get_by_address(next_address)
 
     def getPrevNode(self, next_node):
-        if not self.address_store:
+        if self.address_store == None:
             raise Exception("The node doesn't have a store address. Set the near nodes first.")
 
         if next_node:
@@ -61,31 +61,7 @@ class Node(object):
 class XORLinkedList(object):
     def __init__(self):
         self.head = None
-
-    def append(self, data):
-        if not self.head:
-            self.head = Node(data)
-            self.head.setNearNodes(None, None)
-        else:
-            prev = None 
-            current = self.head
-
-            while current:
-                if not current.address_store:
-                    break
-
-                temp = current
-                current = current.getNextNode(prev)
-                prev = temp 
-            
-            print(prev)
-            print(current.data)
-            print(current == self.head)
-
-            appendNode = Node(data)
-            appendNode.setNearNodes(current, None)
-            current.setNearNodes(prev, appendNode)
-
+           
     def getItems(self):
         items = list()
 
@@ -115,10 +91,25 @@ for i in range(5):
 
 ################################################
 
-XLL.append("A")
-XLL.append("B")
+# XLL.append("A")
+# XLL.append("B")
 
-print(XLL.head.getNextNode(XLL.head))
+# print("HEAD NODE -- > {0}".format(XLL.head))
+# print("HEAD.NEXT NODE -- > {0}".format(XLL.head.getNextNode(None)))
+
+node1 = Node("A")
+node2 = Node("B")
+
+node1.setNearNodes(None, node2)
+print(node1.getNextNode(None).data)
+print(node1.getPrevNode(node2))
+
+print()
+
+node2.setNearNodes(node1, None)
+print(node2.getNextNode(node1))
+print(node2.getPrevNode(None).data)
+
 
 ################################################
 
