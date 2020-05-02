@@ -532,10 +532,7 @@ class DoublyLinkedList(object):
 
             indexTrack += 1 
             current = current.next
-       
-        print("node1 : {0}".format(node1.data))
-        print("node2 : {0}".format(node2.data))
-
+            
         # Swap .prev & .next values
         if node1_prev and node2_prev and node1_next and node2_next:
             node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node2, node1
