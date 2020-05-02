@@ -112,10 +112,8 @@ class DoublyLinkedList(object):
 
         ############################### OTHERS ###############################
 
-        ~ Node swap  ( input : nodes to be swaped )                                     ( self.swapNodes(node1, node2) )                                    -> None                     [x]
-        ~ Node swap  ( input : indexes of the nodes that need to be swapped )           ( self.swapNodesAtIndexes(index1, index2) )                         -> None                     [x]
-        ~ Instant Node Swap ( input : nodes to be swaped )                              ( self.instantNodeSwap(node1, nod2) )                               -> None                     [x]
-        ~ Instant Node Swap ( input : indexes of the node that need to be swaped )      ( self.instantNodesSwapAtIndexes(index1, index2) )                  -> None                     [x]
+        ~ Node Swap ( input : nodes to be swaped )                                      ( self.nodeSwap(node1, nod2) )                               -> None                     [x]
+        ~ Node Swap ( input : indexes of the node that need to be swaped )              ( self.nodeSwapAtIndexes(index1, index2) )                  -> None                     [x]
 
         ~ Reverse                                                                       ( self.reverse() )                                                  -> None                     [x]
 
@@ -463,100 +461,7 @@ class DoublyLinkedList(object):
         
     ############################### OTHERS ###############################
 
-    def swapNodes(self, node1, node2):
-        # Check the nodes 
-        if type(node1) != Node and type(node2) != Node:
-            raise ValueError("The given nodes must have a 'Node' type")
-
-        if node1.data == node2.data:
-            return
-        
-        # Get the prev & next nodes
-        node1_prev = node1.prev
-        node1_next = node1.next
-
-        node2_prev = node2.prev
-        node2_next = node2.next
-
-        # Swap .prev & .next values
-        if node1_prev and node2_prev and node1_next and node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node2, node1
-        elif node1 == self.head and node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node2_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node1, node2, node1
-            self.head = node2
-        elif node2 == self.head and node1_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node2, node1
-            self.head = node1
-        elif not node1_next and node2 != self.head:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node1
-        elif not node2_next and node1 != self.head:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node1_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node2
-        elif node1 == self.head and not node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node2_prev.next, node1_next.prev = node2_next, node2_prev, node1_next, node1_prev, node1, node2
-            self.head = node2
-        elif node2 == self.head and not node1_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next,  node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1
-            self.head = node1
-
-    def swapNodesAtIndexes(self, index1, index2):
-        # Check the indexes
-        if index1 >= self.length or index2 >= self.length or index1 < 0 or index2 < 0:
-            raise IndexError("The given indexes are either too big for the dllist or too small ( < 0 ).")
-
-        # If both indexes are the same than, there is nothing to swap
-        if index1 == index2:
-            return
-
-        # Iterate over the dllist and get the nodes
-        current = self.head
-        indexTrack = 0
-    
-        # Create the nodes
-        node1_prev = None
-        node1 = None
-        node1_next = None
-
-        node2_prev = None
-        node2 = None
-        node2_next = None
-
-        while indexTrack <= max([index1, index2]):
-            if indexTrack == index1:
-                node1 = current
-                node1_prev = node1.prev
-                node1_next = node1.next
-            if indexTrack == index2:
-                node2 = current
-                node2_prev = node2.prev
-                node2_next = node2.next
-
-            indexTrack += 1 
-            current = current.next
-       
-        print("node1 : {0}".format(node1.data))
-        print("node2 : {0}".format(node2.data))
-
-        # Swap .prev & .next values
-        if node1_prev and node2_prev and node1_next and node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node2, node1
-        elif node1 == self.head and node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node2_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node1, node2, node1
-            self.head = node2
-        elif node2 == self.head and node1_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node1_next.prev, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node2, node1
-            self.head = node1
-        elif not node1_next and node2 != self.head:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node1
-        elif not node2_next and node1 != self.head:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next, node2_prev.next, node1_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1, node2
-        elif node1 == self.head and not node2_next:
-            node1.next, node1.prev, node2.next, node2.prev, node2_prev.next, node1_next.prev = node2_next, node2_prev, node1_next, node1_prev, node1, node2
-            self.head = node2
-        elif node2 == self.head and not node1_next:
-            node1.next, node1.prev, node2.next, node2.prev, node1_prev.next,  node2_next.prev = node2_next, node2_prev, node1_next, node1_prev, node2, node1
-            self.head = node1
-
-    def instantNodeSwap(self, node1, node2):
+    def nodeSwap(self, node1, node2):
         # Check the nodes
         if not node1 or not node2:
             raise ValueError("The given nodes are not valid.")
@@ -567,7 +472,7 @@ class DoublyLinkedList(object):
         # Swap only the data
         node1.data, node2.data = node2.data, node1.data
 
-    def instantNodeSwapAtIndexes(self, index1, index2):
+    def nodeSwapAtIndexes(self, index1, index2):
         # Check the indexes
         if index1 > self.length or index2 > self.length or index1 < 0 or index2 < 0:
             raise IndexError("The given indexes are either too big for the dllist or too small ( < 0 ).")
