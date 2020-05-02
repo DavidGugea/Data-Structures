@@ -112,8 +112,8 @@ class DoublyLinkedList(object):
 
         ############################### OTHERS ###############################
 
-        ~ Instant Node Swap ( input : nodes to be swaped )                              ( self.instantNodeSwap(node1, nod2) )                               -> None                     [x]
-        ~ Instant Node Swap ( input : indexes of the node that need to be swaped )      ( self.instantNodesSwapAtIndexes(index1, index2) )                  -> None                     [x]
+        ~ Node Swap ( input : nodes to be swaped )                                      ( self.nodeSwap(node1, nod2) )                               -> None                     [x]
+        ~ Node Swap ( input : indexes of the node that need to be swaped )              ( self.nodeSwapAtIndexes(index1, index2) )                  -> None                     [x]
 
         ~ Reverse                                                                       ( self.reverse() )                                                  -> None                     [x]
 
@@ -461,7 +461,7 @@ class DoublyLinkedList(object):
         
     ############################### OTHERS ###############################
 
-    def instantNodeSwap(self, node1, node2):
+    def nodeSwap(self, node1, node2):
         # Check the nodes
         if not node1 or not node2:
             raise ValueError("The given nodes are not valid.")
@@ -472,7 +472,7 @@ class DoublyLinkedList(object):
         # Swap only the data
         node1.data, node2.data = node2.data, node1.data
 
-    def instantNodeSwapAtIndexes(self, index1, index2):
+    def nodeSwapAtIndexes(self, index1, index2):
         # Check the indexes
         if index1 > self.length or index2 > self.length or index1 < 0 or index2 < 0:
             raise IndexError("The given indexes are either too big for the dllist or too small ( < 0 ).")
