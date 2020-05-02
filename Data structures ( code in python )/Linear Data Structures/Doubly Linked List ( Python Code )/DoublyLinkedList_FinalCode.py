@@ -112,13 +112,13 @@ class DoublyLinkedList(object):
 
         ############################### OTHERS ###############################
 
-<<<<<<< HEAD
-        ~ Node Swap ( input : nodes to be swaped )                                      ( self.nodeSwap(node1, nod2) )                               -> None                     [x]
-        ~ Node Swap ( input : indexes of the node that need to be swaped )              ( self.nodeSwapAtIndexes(index1, index2) )                  -> None                     [x]
-=======
+
         ~ Node Swap ( input : nodes to be swaped )                                      ( self.nodeSwap(node1, nod2) )                                      -> None                     [x]
         ~ Node Swap ( input : indexes of the node that need to be swaped )              ( self.nodeSwapAtIndexes(index1, index2) )                          -> None                     [x]
->>>>>>> DoublyLinkedList_PythonCode
+
+        ~ Node Swap ( input : nodes to be swaped )                                      ( self.nodeSwap(node1, nod2) )                                      -> None                     [x]
+        ~ Node Swap ( input : indexes of the node that need to be swaped )              ( self.nodeSwapAtIndexes(index1, index2) )                          -> None                     [x]
+
 
         ~ Reverse                                                                       ( self.reverse() )                                                  -> None                     [x]
 
