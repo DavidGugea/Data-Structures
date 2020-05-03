@@ -1,3 +1,6 @@
+import random
+import itertools  
+
 # Create an "IDS" dict. We will keep all the ids ( as keys ) & nodes ( as values ) in it when we will use the method 'setNearNodes' for each node. We create this because we will need to search through all the id's when we want to get the next / previous node. Why we have to KVP 0 < - > None by default in it will be exaplained later 
 IDS = { 0 : None }
 
@@ -42,6 +45,79 @@ def getByAddress(SEARCH_ID):
     # Check if the id is in the IDS dict's keys, if there is, return it's value from the dict, otherwise raise a value error
     if SEARCH_ID in IDS.keys(): return IDS[SEARCH_ID]
     else: raise ValueError("The search id couldn't be found in the IDS dict. Try again.") 
+
+def updateID(obj):
+    if obj == None: return
+    IDS[id(obj)] = obj
+
+class QuickSort(object):
+    def __init__(self, listToSort):
+        self.quick_sort(listToSort, 0, len(listToSort) - 1)
+    def medianOfThree(self, arr, low, high):
+        if len(arr[low:high]) >= 3:
+            # Create a list that contains the START, MIDDLE & END values of the list
+            start_middle_end = [ arr[ low ], arr[ ( low + high ) // 2 ], arr[ high ] ]
+            
+            # Sort the list
+            start_middle_end.sort()
+                
+            # Return the index of the middle element
+            return arr.index(start_middle_end[1]) 
+        else:
+            return random.randint(low, high) 
+    def partition(self, arr, low, high):
+        # Get the pivot index using the median of three strategy
+        pivotIndex = self.medianOfThree(arr, low, high) 
+
+        # Get the pivot value using the pivot index
+        pivot = arr[pivotIndex]
+
+        # Swap the pivot with the last value from the list to 'get it from our way'
+        arr[pivotIndex], arr[high] = arr[high], arr[pivotIndex]
+
+        # Update the pivot index
+        pivotIndex = high
+        
+        # Create two pointers that will scan the list
+        LP = low      # Left pointer, swaps values that are bigger than the pivot ( > pivot )
+        RP = high - 1 # Right pointer, swaps values that are smaller than the pivot ( < pivot )
+             
+        # Iterate over the list and swap the needed values while finding the place for the pivot
+        while LP <= RP:
+            if arr[LP] > pivot and arr[RP] < pivot:
+                # Swap the left & right pointers
+                arr[LP], arr[RP] = arr[RP], arr[LP]
+
+                # Increment the left pointer
+                LP += 1
+
+                # Decrement the right pointer
+                RP -= 1
+            else:
+                if arr[LP] < pivot:
+                    # Increment the left pointer
+                    LP += 1
+                
+                if arr[RP] > pivot:
+                    # Decrement the right pointer
+                    RP -= 1
+
+        # Swap the pivot with the left pointer index value
+        arr[LP], arr[pivotIndex] = arr[pivotIndex], arr[LP]
+        
+        # Update the pivot index
+        pivotIndex = LP
+
+        # Return the pivot index
+        return pivotIndex
+    def quick_sort(self, arr, low, high):
+        if low < high:
+            # Get the partition border index
+            partitionIndex = self.partition(arr, low, high)
+
+            # Quick sort both halves
+            self.quick_sort(arr, low, partitionIndex - 1)
+            self.quick_sort(arr, partitionIndex + 1, high)
 
 class Node(object):
     def __init__(self, data):
@@ -125,55 +201,55 @@ class XORLinkedList(object):
 
         ######################### GENERAL METHODS #########################
 
-        ~ Get length                                                                        (self.getLength )                                   -> number                       []
-        ~ Create __len__(self) method                                                       ( len(self) )                                       -> number                       []
+        ~ Get length                                                                        (self.getLength )                                   -> number                       [x]
+        ~ Create __len__(self) method                                                       ( len(self) )                                       -> number                       [x]
 
-        ~ Node at index                                                                     ( self.atIndex(index) )                             -> node                         []
-        ~ Get node data list                                                                ( self.getNodeData() )                              -> list                         []
+        ~ Node at index                                                                     ( self.atIndex(index) )                             -> node                         [x]
+        ~ Get node data list                                                                ( self.getNodeData() )                              -> list                         [x]
 
-        ~ Get last node                                                                     ( self.getLastNode() )                              -> node                         []
-        ~ Check the XOR Linked List, chjeck .prev & .next                                   ( self.check() )                                    -> True / False                 []
+        ~ Get last node                                                                     ( self.getLastNode() )                              -> Node                         [x]
 
         ######################### GENERAL METHODS #########################
 
         ######################### INSERTION / DELETION #########################
 
-        ~ Append                                                                            ( self.append(data) )                               -> None                         []
-        ~ Prepend                                                                           ( self.prepend(data) )                              -> None                         []
+        ~ Append                                                                            ( self.append(data) )                               -> None                         [x]
+        ~ Prepend                                                                           ( self.prepend(data) )                              -> None                         [x]
     
-        ~ Insert after node                                                                 ( self.insertAfterNode(node, data) )                -> None                         []
-        ~ Insert after node data                                                            ( self.insertAfterNodeData(key, data) )             -> None                         []
-        ~ Insert at index                                                                   ( self.insertAtIndex(index, data) )                 -> None                         []
+        ~ Insert after node                                                                 ( self.insertAfterNode(node, data) )                -> None                         [x]
+        ~ Insert after node data                                                            ( self.insertAfterNodeData(key, data) )             -> None                         [x]
+        ~ Insert at index                                                                   ( self.insertAtIndex(index, data) )                 -> None                         [x]
 
-        ~ Delete node                                                                       ( self.deleteNode(node) )                           -> None                         []
-        ~ Delete at index                                                                   ( self.deleteAtIndex(index) )                       -> None                         []
-        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                   -> None                         []
+        ~ Delete node                                                                       ( self.deleteNode(node) )                           -> None                         [x]
+        ~ Delete at index                                                                   ( self.deleteAtIndex(index) )                       -> None                         [x]
+        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                   -> None                         [x]
             
         ######################### INSERTION / DELETION #########################
 
         ######################### OTHERS #########################
 
-        ~ Node Swap ( input : nodes to be swaped )                                          ( self.nodeSwap(node1, node2) )              -> None                         []
-        ~ Node Swap ( input : indexes of the nodes that need to be swapped )                ( self.nodeSwapAtIndexes(index1, index2) )   -> None                         []
+        ~ Node Swap ( input : nodes to be swaped )                                          ( self.nodeSwap(node1, node2) )                     -> None                         [x]
+        ~ Node Swap ( input : indexes of the nodes that need to be swapped )                ( self.nodeSwapAtIndexes(index1, index2) )          -> None                         [x]
 
-        ~ Reverse                                                                           ( self.reverse() )                                  -> None                         []
+        ~ Reverse                                                                           ( self.reverse() )                                  -> None                         [x]
 
-        ~ Merge ( both sorted )                                                             ( self.mergeBothSorted(MERGE_XLLIST) )              -> None                         []
-        ~ Merge ( both unsorted )                                                           ( self.mergeBothSorted(MERGE_XLLIST) )              -> None                         []
+        ~ Merge ( both sorted )                                                             ( self.mergeBothSorted(MERGE_XLLIST) )              -> None                         [x]
+        ~ Merge ( both unsorted )                                                           ( self.mergeBothUnsorted(MERGE_XLLIST) )            -> None                         [x]
+        ~ Sort  ( sort the main XLLIST )                                                    ( self.sort() )                                     -> None                         [x] 
 
-        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                         -> None                         []
-        ~ Rotate                                                                            ( self.rotate(rotation_value) )                     -> None                         []
+        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                         -> None                         [x]
+        ~ Rotate                                                                            ( self.rotate(rotation_value) )                     -> None                         [x]
     
-        ~ Is Palindrome                                                                     ( self.isPalindrome() )                             -> True / False                 []
+        ~ Is Palindrome                                                                     ( self.isPalindrome() )                             -> True / False                 [x]
 
-        ~ Move tail to head                                                                 ( self.moveTailToHead() )                           -> None                         []
-        ~ Sum with another XLLIST                                                           ( self.sumWithXLLIST(SUM_XLLIST) )                  -> None                         []
+        ~ Move tail to head                                                                 ( self.moveTailToHead() )                           -> None                         [x]
+        ~ Sum with another XLLIST                                                           ( self.sumWithXLLIST(SUM_XLLIST) )                  -> None                         [x]
 
-        ~ Split list in half                                                                ( self.splitInHalf() )                              -> [ XLLIST_1, XLLIST_2 ]       []
-        ~ Split list after node                                                             ( self.splitAfterNode(node) )                       -> [ XLLIST_1, XLLIST_2 ]       []
-        ~ Split list at index                                                               ( self.splitAtIndex(index) )                        -> [ XLLIST_1, XLLIST_2 ]       []
+        ~ Split list in half                                                                ( self.splitInHalf() )                              -> [ XLLIST_1, XLLIST_2 ]       [x]
+        ~ Split list after node                                                             ( self.splitAfterNode(node) )                       -> [ XLLIST_1, XLLIST_2 ]       [x]
+        ~ Split list at index                                                               ( self.splitAtIndex(index) )                        -> [ XLLIST_1, XLLIST_2 ]       [x]
     
-        ~ Pairs with sum                                                                    ( self.pairsWithSum(sum_value) )                    -> [ [], [], ... [] ]           []
+        ~ Pairs with sum                                                                    ( self.pairsWithSum(sum_value) )                    -> [ [], [], ... [] ]           [x]
 
         ######################### OTHERS #########################
 
@@ -243,12 +319,9 @@ class XORLinkedList(object):
         if self.head == None:
             # Set the new head node 
             self.head = appendNode
-
+            
             # Set the near nodes of the head node to be both None ( None < - > HEAD NODE < - > None ) 
             self.head.setNearNodes(None, None)
-
-            # Update the last node 
-            self.last = self.head
         else:
             # Keep track of the previous & current node
             prev = None
@@ -271,8 +344,8 @@ class XORLinkedList(object):
             # Set the new near nodes of the append node to be the last node of the XOR Linked List and None as it's next node which will make the 'appendNode' the new last node of the XOR Linked List 
             appendNode.setNearNodes(current, None)
 
-            # Update the last node
-            self.last = appendNode
+        # Update the last node
+        self.last = appendNode
 
         # Increment the legth of the linked list
         self.length += 1
@@ -300,6 +373,11 @@ class XORLinkedList(object):
         self.length += 1
 
     def insertAfterNode(self, node, data):
+        # If the node that we must insert a node after is the last node, then that means that we want to append. 
+        if node == self.last:
+            self.append(data)
+            return
+
         # Check the node
         if type(node) != Node:
             raise ValueError("The given 'node' argument must be of 'Node' type.")
@@ -355,14 +433,22 @@ class XORLinkedList(object):
         # Reset the near nodes for the insert node & the current node
         insertNode.setNearNodes(current, nextNode)
         current.setNearNodes(prev, insertNode)
-    
+        
+        # Update the last node in case current was 'last'
+        if current == self.last:
+            self.last = insertNode
+
         # Increment the length of the XLLIST
         self.length += 1
 
     def insertAtIndex(self, index, data):
         # Check the given index
-        if not 0 <= index < self.length:
+        if not 0 <= index <= self.length:
             raise IndexError("The given index is either too big for the XOR Linked List or too small ( < 0 ).")
+
+        if index == self.length:
+            self.append(data)
+            return
 
         # Create the insert node with the given data
         insertNode = Node(data)
@@ -388,7 +474,11 @@ class XORLinkedList(object):
         # Reset the near nodes for the insert node & the current node  
         insertNode.setNearNodes(current, nextNode)
         current.setNearNodes(prev, insertNode)
-        
+ 
+        # Try to update the last node
+        if index == self.length - 1:
+            self.last = insertNode 
+
         # Increment the length of the XLLIST
         self.length += 1
 
@@ -396,6 +486,10 @@ class XORLinkedList(object):
         # Check the given node
         if type(node) != Node:
             raise ValueError("The given 'node' argument must be of type 'Node'")
+
+        # Try to update last
+        if node == self.last:
+            self.last = self.last.getPrevNode(None)
 
         # Check if the given node is a head node
         if node == self.head:
@@ -440,6 +534,10 @@ class XORLinkedList(object):
         # Check the given index 
         if not 0 <= index < self.length:
             raise IndexError("The given index is either too big for the XOR Linked List or too small ( < 0 )")
+
+        # Try to update the last node 
+        if index == self.length - 1:
+            self.last = self.last.getPrevNode(None)
 
         # Check if the given index is 0 ( so if the nodes that must be deleted is the head node )
         if index == 0:
@@ -495,6 +593,10 @@ class XORLinkedList(object):
             prev = None
             current = self.head
 
+            # Try to update the last node
+            if self.getNodeData().count(data) == 1:
+                self.last = self.last.getPrevNode(None)
+
             while current.data != data:
                 temp = current
                 current = current.getNextNode(prev)
@@ -519,29 +621,438 @@ class XORLinkedList(object):
 
     ######################### OTHERS #########################
 
-    def  
+    def nodeSwap(self, node1, node2):
+        # Swap the data of the nodes ( if the nodes are the same, don't swap anything )
+        if ( node1 is node2 ) or ( node1.data is node2.data ) : return
+        node1.data, node2.data = node2.data, node1.data
+
+    def nodeSwapAtIndexes(self, index1, index2):
+        # Check the given indexes
+        if not 0 <= index1 < self.length and not 0 <= index2 < self.length:
+            raise IndexError("The given indexes are either too big for the XOR Linked List or too small ( < 0 )")
+
+        # Check if the indexes are both the same, if they are there is nothing to swap
+        if index1 == index2:
+            return
+
+        # Get the nodes & swap the data
+        node1 = None
+        node2 = None
+
+        prev = None
+        current = self.head
+
+        indexTrack = 0
+    
+        while indexTrack <= max([index1, index2]):
+            if indexTrack == index1:
+                node1 = current
+            if indexTrack == index2:
+                node2 = current 
+    
+            temp = current
+            current = current.getNextNode(prev)
+            prev = temp 
+
+            indexTrack += 1
+
+        # Swap the data
+        node1.data, node2.data = node2.data, node1.data
+
+    def reverse(self):
+        # Reverse the 'pointers'
+        prev = None
+        current = self.head
+
+        # Update the head node 
+        self.last = self.head
+
+        while current:
+            temp = current
+            nextNode = current.getNextNode(prev)
+
+            if prev:
+                prev.setNearNodes(current, prev.getPrevNode(current))
+            current.setNearNodes(current.getNextNode(prev), prev)
+
+            prev = temp
+            current = nextNode
+        
+        self.head = prev 
+
+    def mergeBothSorted(self, MERGE_XLLIST):
+        # Check the MERGE_XLLIST
+        if type(MERGE_XLLIST) != XORLinkedList:
+            raise Exception("The MERGE_XLLIST must be of type 'XORLinkedList'")
+
+        '''
+        Example:
+        self            =>      [1, 5, 7, 9, 10]
+        MERGE_XLLIST    =>      [2, 3, 4, 6, 8]
+
+        * AFTER MERGE * :
+
+        self            =>      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        '''
+        
+        # Keep track of the PREV_P, PREV_Q & PREV_PATH in order to iterate over the XLLISTS
+        PREV_P = None
+        PREV_Q = None
+        PREV_PATH = None
+
+        # Keep track of all the nodes in both XLLISTS
+        P = self.head
+        Q = MERGE_XLLIST.head
+        
+        # Create the new 'path' node. It will start with the lowest node head data from both XLLISTS 
+        path = Node(min([self.head.data, MERGE_XLLIST.head.data]))
+
+        # Set thea near nodes of the path do be by default None & None, just like a normal head node starts with no near nodes, no 'neighbours'
+        path.setNearNodes(None, None)
+        
+        # Store the 'head' node in a variable and, after we create the path of nodes, we will set the new head node to be self.head 
+        BEGIN_HEAD_NODE = path
+        
+        # Update one of the head nodes ( P or Q , because the 'path' node already took once place ( self.head or MERGE_XLLIST.head ) 
+        if path.data == self.head.data:
+            P = P.getNextNode(None)
+            PREV_P = self.head
+        else:
+            Q = Q.getNextNode(None)
+            PREV_Q = MERGE_XLLIST.head
+        
+        # Create the new path of nodes in a sorted way  
+        while P and Q:
+            # Keep track of the current path node  
+            TEMP_PATH = path
+
+            if path.data < P.data and P.data < Q.data:
+                # Keep track of the current P node  
+                TEMP_P = P
+
+                # Create a new next node that has the data property of the P node and set the near nodes to be previous, path and next None 
+                nextNode = Node(P.data)
+                nextNode.setNearNodes(path, None)
+
+                # Update the near nodes of the path node  
+                path.setNearNodes(PREV_PATH, nextNode)
+        
+                # Update the P node  
+                P = P.getNextNode(PREV_P)
+                PREV_P = TEMP_P
+            elif path.data < Q.data and Q.data < P.data:
+                # Keep track of the current Q node 
+                TEMP_Q = Q
+                
+                # Create a new next node that has teh data proeprty of the Q node and set the near nodes to be previous, path and next None
+                nextNode = Node(Q.data)
+                nextNode.setNearNodes(path, None)
+            
+                # Update the near nodes of the path node 
+                path.setNearNodes(PREV_PATH, nextNode)
+
+                # Update the q node 
+                Q = Q.getNextNode(PREV_Q)
+                PREV_Q = TEMP_Q  
+            
+            # Update the path node
+            path = path.getNextNode(PREV_PATH)
+            PREV_PATH = TEMP_PATH
+   
+        # Check for left-overs
+        while P:            
+            TEMP_P = P
+            TEMP_PATH = path
+
+            nextNode = Node(P.data)
+
+            nextNode.setNearNodes(path, None)
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            path = path.getNextNode(PREV_PATH)
+            P = P.getNextNode(PREV_P)
+
+            PREV_P = TEMP_P
+            PREV_PATH = TEMP_PATH
+        while Q:
+            TEMP_Q = Q
+            TEMP_PATH = path
+
+            nextNode = Node(Q.data)
+
+            nextNode.setNearNodes(path, None)
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            path = path.getNextNode(PREV_PATH)
+            Q = Q.getNextNode(PREV_Q)
+
+            PREV_Q = TEMP_Q
+            PREV_PATH = TEMP_PATH
+
+        # Update the head node to be the first path node ( BEGIN_HEAD_NODE ) 
+        self.head = BEGIN_HEAD_NODE 
+
+        # Update the last node
+        self.last = path
+
+        # Update the length of the XLLIST
+        self.length += len(MERGE_XLLIST)
+
+    def mergeBothUnsorted(self, MERGE_XLLIST):
+        # Check the MERGE_XLLIST
+        if type(MERGE_XLLIST) != XORLinkedList:
+            raise Exception("The MERGE_XLLIST must be of type 'XORLinkedList'")            
+
+        # Get all the node data in the a list and sort the list
+        allNodesData = self.getNodeData() + MERGE_XLLIST.getNodeData()
+
+        # Sort the nodes data using the quick sort algorithm ( median of three strategy )  
+        QS = QuickSort(allNodesData)
+
+        # Create a new path node that will store all the new sorted nodes data
+        path = Node(allNodesData[0])
+        
+        # By default set its' near nodes to be both None & None, as a normal default head node 
+        path.setNearNodes(None, None)
+    
+        # Keep track of the previous path node too, in order to be able to move through the list, defaults to None
+        PREV_PATH = None
+
+        # Keep track of start head node. We will swap this node with the current head node ( * self.head * ) that we have now. 
+        BEGIN_HEAD_NODE = path 
+
+        for data in allNodesData[1:]:
+            # Keep track of the current path, we will swap its value with the PREV_PATH node.
+            TEMP_PATH = path
+            
+            # Create a new next node & set its near nodes
+            nextNode = Node(data)
+            nextNode.setNearNodes(path, None)
+
+            # Reset the near nodes of the current path node
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            # Update the path node
+            path = path.getNextNode(PREV_PATH)
+
+            # Update the PREV_PATH node to be the last path node
+            PREV_PATH = TEMP_PATH
+
+        # Update the head node
+        self.head = BEGIN_HEAD_NODE
+
+        # Update the last node
+        self.last = path 
+
+        # Update the length of the XLLIST
+        self.length += len(MERGE_XLLIST)
+
+    def sort(self):
+        # Get all the node data and sort it using quick sort
+        allNodesData = self.getNodeData()
+        
+        # Sort it using the quick sort algorithm ( median of three strategy )
+        QS = QuickSort(allNodesData)
+
+        # Create a new path node that will have it's data the first sorted element of the allNodesData 
+        path = Node(allNodesData[0])
+
+        # Set its near nodes to be both None & None as a default head node
+        path.setNearNodes(None, None) 
+
+        # Keep track of the previous node of the path in order to be able to go through the XLLIST ( defaults to None )
+        PREV_PATH = None
+        
+        # Keep the default path node as a default future head node set in a variable. We will set the current head node that we have now to be this variable in the future after we build the node path 
+        BEGIN_HEAD_NODE = path
+
+        for data in allNodesData[1:]:
+            # Store the current path node in a new variable in order to update the PREV_PATH ( prev node of the path node ) after we update the path node 
+            TEMP_PATH = path 
+        
+            # Create the next node
+            nextNode = Node(data)
+
+            # Set up it's near nodes to be path & None
+            nextNode.setNearNodes(path, None)
+
+            # Reset the near nodes of the path node
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            # Update the path node
+            path = path.getNextNode(PREV_PATH)
+
+            # Update the PREV_PATH node
+            PREV_PATH = TEMP_PATH
+
+        # Update the last node
+        self.last = path 
+
+        # Update the head node
+        self.head = BEGIN_HEAD_NODE 
+   
+    def removeDuplicates(self):
+        # Get all the node data from the XLLIST that doesn't repeat itself
+        nodeData = list(set(self.getNodeData()))
+
+        if len(nodeData) == self.length: return
+
+        # Update the length of the XLLIST
+        self.length = len(nodeData)
+
+        # Rebuild the XLLIST with the new node data
+        path = Node(nodeData[0])
+        path.setNearNodes(None, None)
+
+        PREV_PATH = None
+        BEGIN_HEAD_NODE = path
+
+        for data in nodeData[1:]:
+            TEMP_PATH = path
+
+            nextNode = Node(data)
+
+            nextNode.setNearNodes(path, None)
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            path = path.getNextNode(PREV_PATH)
+            PREV_PATH = TEMP_PATH
+
+        # Update the last node
+        self.last = path
+
+        # Update the head node
+        self.head = BEGIN_HEAD_NODE
+
+    def rotate(self, rotation_value):
+        # Check the rotation value
+        if not 0 <= rotation_value < self.length:
+            raise ValueError("The given rotation value is either too big for the XOR Linked List or too small ( < 0 )") 
+
+        # Get all the node data and rotate it, after that rebuilt the list using the given node data  
+        nodeData = self.getNodeData()
+        nodeData = nodeData[rotation_value:] + nodeData[:rotation_value]
+
+        # Rebuild the XLLIST
+        path = Node(nodeData[0])
+        path.setNearNodes(None, None)
+
+        BEGIN_PATH_NODE = path
+        PREV_PATH = None
+
+        for data in nodeData[1:]:
+            TEMP_PATH = path
+
+            nextNode = Node(data)
+
+            nextNode.setNearNodes(path, None)
+            path.setNearNodes(PREV_PATH, nextNode)
+
+            path = path.getNextNode(PREV_PATH)
+            PREV_PATH = TEMP_PATH
+        
+        # Update last node
+        self.last = path
+        
+        # Update the head node
+        self.head = BEGIN_PATH_NODE
+
+    def isPalindrome(self):
+        # Return True/False if the node-data string is the same upside down
+        nodeDataString = "".join(map(str, self.getNodeData()))
+        return nodeDataString == nodeDataString[::-1]
+
+    def moveTailToHead(self):
+        self.last.data, self.head.data = self.head.data, self.last.data 
+
+    def sumWithXLLIST(self, SUM_XLLIST):
+        return sum(self.getNodeData()) + sum(SUM_XLLIST.getNodeData())
+
+    def splitInHalf(self):
+        XLLIST_1 = XORLinkedList()
+        XLLIST_2 = XORLinkedList()
+
+        indexTrack = 0
+
+        prev = None
+        current = self.head
+
+        while indexTrack < self.length:
+            if indexTrack < self.length // 2:
+                XLLIST_1.append(current.data)
+            else:
+                XLLIST_2.append(current.data)
+
+            TEMP_CURRENT =  current
+            current = current.getNextNode(prev)
+            prev = TEMP_CURRENT
+
+            indexTrack += 1
+
+        return [ XLLIST_1, XLLIST_2 ]
+
+    def splitAfterNode(self, node):
+        # Check the node
+        if type(node) == Node:
+            raise Exception("The given node argument must be of type 'Node'")
+
+        XLLIST_1 = XORLinkedList()
+        XLLIST_2 = XORLinkedList()
+
+        PTRN = False # PTRN = passed the required node 
+
+        prev = None
+        current = self.head
+    
+        while current:
+            if not PTRN:
+                XLLIST_1.append(current.data)
+            else:
+                XLLIST_2.append(current.data)
+            
+            if current == node:
+                PTRN = True 
+                
+            TEMP_CURRENT = current
+            current = current.getNextNode(prev) 
+            prev = TEMP_CURRENT
+
+        return [ XLLIST_1, XLLIST_2 ]
+
+    def splitAtIndex(self, index):
+        # Check the index
+        if not 0 <= index < self.length:
+            raise IndexError("The given index is either too big for the XOR Linked List or too small ( < 0 )")
+
+        XLLIST_1 = XORLinkedList()
+        XLLIST_2 = XORLinkedList()
+
+        indexTrack = 0
+
+        prev = None
+        current = self.head
+
+        while current:
+            if indexTrack <= index:
+                XLLIST_1.append(current.data)
+            else:
+                XLLIST_2.append(current.data)
+
+            TEMP_CURRENT = current
+            current = current.getNextNode(prev)
+            prev = TEMP_CURRENT
+        
+            indexTrack += 1
+
+        return [ XLLIST_1, XLLIST_2 ]
+
+    def pairsWithSum(self, sum_value):
+        pairs = list() 
+
+        for pair in list(itertools.permutations(self.getNodeData(), 2)):
+            if sum(pair) == sum_value and tuple(pair) not in pairs and tuple(pair[::-1]) not in pairs:
+                pairs.append(tuple(pair))
+    
+        return pairs
 
     ######################### OTHERS #########################
-
-XLL = XORLinkedList()
-
-for charCode in list(range(ord("A"), ord("A") + 5)):
-    XLL.append(chr(charCode))
-
-print("START XOR LINKED LIST -- > ")
-print(XLL.getNodeData())
-
-print("LENGTH : {0}".format(len(XLL)))
-
-for i in range(3):
-    print()
-
-
-
-for i in range(3):
-    print()
-
-print("END XOR LINKED LIST -- > ")
-print(XLL.getNodeData())
-
-print("LENGTH : {0}".format(len(XLL)))
