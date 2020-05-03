@@ -594,7 +594,7 @@ class XORLinkedList(object):
             current = self.head
 
             # Try to update the last node
-            if self.getNodeData().count(data) == 1:
+            if self.getNodeData().count(data) == 1 and self.last == data:
                 self.last = self.last.getPrevNode(None)
 
             while current.data != data:
