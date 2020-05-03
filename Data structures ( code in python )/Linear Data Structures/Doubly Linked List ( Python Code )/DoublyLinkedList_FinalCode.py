@@ -10,6 +10,8 @@ class Node(object):
         self.next = None
 
 class QuickSort(object):
+    def __init__(self, arr):
+        self.quickSort(arr, 0, len(arr) - 1)
     def medianOfThree(self, arr, low, high):
         if len(arr) >= 3:
             # Get the first, middle & last item
@@ -68,13 +70,12 @@ class QuickSort(object):
 
             self.quickSort(arr, low, partitionBorderIndex - 1)
             self.quickSort(arr, partitionBorderIndex + 1, high)
-    def sort(self, arr):
-        self.quickSort(arr, 0, len(arr) - 1)
 
 class DoublyLinkedList(object):
     def __init__(self):
         # Create the head node of the dllist, set it by default to none
         self.head = None
+        self.last = None
 
         # Keep track of the length of the dllist. Default is 0
         self.length = 0
@@ -124,6 +125,7 @@ class DoublyLinkedList(object):
 
         ~ Merge ( both sorted )                                                         ( self.mergeBothSorted(dllist_merge) )                              -> None                     [x]
         ~ Merge ( both unsorted )                                                       ( self.mergeBothUnsorted(dllist_merge) )                            -> None                     [x]
+        ~ Sort                                                                          ( self.sort() )                                                     -> None                     [x]
 
         ~ Remove duplicates                                                             ( self.removeDuplicates() )                                         -> None                     [x]
         ~ Rotate                                                                        ( self.rotate(rotationValue) )                                      -> None                     [x]
@@ -178,13 +180,7 @@ class DoublyLinkedList(object):
         return nodeDataList
 
     def getLastNode(self):
-        # Iterate over all the nodes in the dllist while the next node in front of the current node is not None. So like that, at the end we know that the next node is 'None', so that means that we will have 'current', the last node in the dllist
-        current = self.head
-
-        while current.next:
-            current = current.next
-
-        return current
+        return self.last
 
     def check(self):
         # Check the .prev & .next node
@@ -216,6 +212,9 @@ class DoublyLinkedList(object):
             # Increment the length of the dllist
             self.length += 1
 
+            # Update last node 
+            self.last = self.head
+
             return
 
         # Iterate over all the nodes in the list till we get to the last node
@@ -229,6 +228,9 @@ class DoublyLinkedList(object):
 
         appendNode.prev = current
         current.next = appendNode
+
+        # Upgate last node
+        self.last = appendNode
 
         # Increment the length of the dllist
         self.length += 1
@@ -259,6 +261,12 @@ class DoublyLinkedList(object):
         self.length += 1
 
     def insertAfterNode(self, node, data):
+        newLastNode = False
+
+        # Try to update the head
+        if node == self.last:
+            newLastNode = True    
+
         # Check the node & data argument
         if not data:
             raise ValueError("The 'data' argument must be valid")
@@ -278,6 +286,9 @@ class DoublyLinkedList(object):
             nxt.prev = insertNode
 
         node.next = insertNode
+
+        if newLastNode:
+            self.last = insertNode
 
         # Increment the length of the dllist
         self.length += 1
@@ -310,6 +321,10 @@ class DoublyLinkedList(object):
 
         insertNode.prev = current
         current.next = insertNode
+
+        # Try to update the last node
+        if self.getNodeData().count(key) == 1 and self.last:
+            self.last = self.last.prev
 
         # Increment the length of the dllist
         self.length += 1
@@ -351,6 +366,10 @@ class DoublyLinkedList(object):
         insertNode.prev = current
         current.next = insertNode
 
+        # Try to update the last node
+        if index == self.length - 1:
+            self.last = self.last.next
+
         # Increment the length of the dllist
         self.length += 1
     
@@ -359,6 +378,10 @@ class DoublyLinkedList(object):
         if type(node) != Node:
             raise ValueError("The passed in 'node' argument must be of type 'Node'")
            
+        # Try to update the last node
+        if node == self.last:
+            self.last = self.last.prev
+
         if node != self.head and node.next: 
            prev = node.prev
            nxt  = node.next
@@ -380,9 +403,12 @@ class DoublyLinkedList(object):
         self.length -= 1
 
     def deleteNodeAtIndex(self, index):
-        # Check the given index
         if index >= self.length or index < 0:
             raise IndexError("The given index either too big for the dllist or it's too small ( < 0 ).")
+
+        # Try to update the last node
+        if index == self.length - 1:
+            self.last = self.last.prev 
 
         # Iterate over the dllist while keeping track of the current node and of the index
         current = self.head
@@ -421,6 +447,10 @@ class DoublyLinkedList(object):
         # Check the passed in 'data' value
         if not data:
             raise ValueError("The passed in data value is not valid.")
+
+        # Try to update the last node
+        if self.getNodeData().count(data) == 1 and self.last.data == data:
+            self.last = self.last.prev
 
         # Iterate over the dllist and keep track of the current node. If the current node will have the same value as the 'data' arg, break the loop
         current = self.head
@@ -515,7 +545,8 @@ class DoublyLinkedList(object):
 
             prev = current
             current = nxtNode
-
+        
+        # Update the head node 
         self.head = prev
 
     def mergeBothSorted(self, dllist_merge):
@@ -593,6 +624,9 @@ class DoublyLinkedList(object):
             dp = dp.next
             mp = mp.next
     
+        # Update the last node
+        self.last = mp
+        
     def mergeBothUnsorted(self, dllist_merge):
         # Steps:
         # ~ 1. Get the node data from both lists in a bigger list
@@ -603,8 +637,7 @@ class DoublyLinkedList(object):
         nodeDataList = self.getNodeData() + dllist_merge.getNodeData() 
 
         # ~ 2.
-        quickSort_alg = QuickSort()
-        quickSort_alg.sort(nodeDataList)
+        quickSort_alg = QuickSort(nodeDataList)
 
         # ~ 3.
         current = Node(nodeDataList[0])
@@ -617,7 +650,38 @@ class DoublyLinkedList(object):
             current.next = newNode
 
             current = current.next
-    
+   
+        # Update the last node
+        self.last = current
+
+    def sort(self):
+        # Store all the node data in a list & sort it using quick sort ( the median of three strategy )
+        nodeDataList = self.getNodeData()
+
+        # Sort it
+        QS = QuickSort(nodeDataList)
+
+        # Rebuild the doubly linked list
+        current = Node(nodeDataList[0])
+        prev = None
+
+        BEGIN_HEAD_NODE = current
+
+        for data in nodeDataList[1:]:
+            nextNode = Node(data)
+            nextNode.prev = prev
+            
+            current.next = nextNode
+
+            prev = current
+            current = current.next
+
+        # Update last node 
+        self.last = current
+
+        # Update the head node
+        self.head = BEGIN_HEAD_NODE
+
     def removeDuplicates(self):
         # Keep track of the used node data
         usedNodeData = [self.head.data]
@@ -643,6 +707,9 @@ class DoublyLinkedList(object):
                 usedNodeData.append(sp.data)
             
             sp = sp.next
+   
+        # Update the last node
+        self.last = mp
     
     def rotate(self, rotationValue):
         # Check the rotation value
@@ -662,12 +729,13 @@ class DoublyLinkedList(object):
                 mainRotationNode = current
                 beforeRotationValue = current.prev 
 
-
             counter += 1
 
             prev = current
             current = current.next
-            
+        
+        # Update the last node
+        self.last = current
     
         lastNode = prev
 
@@ -677,6 +745,7 @@ class DoublyLinkedList(object):
 
         mainRotationNode.prev = None
         self.head = mainRotationNode
+
 
     def isPalindrome(self):
         # Get all the node data in a string and see if the string upsidedown is the same as the normal node data string
@@ -692,24 +761,9 @@ class DoublyLinkedList(object):
         return nodeString == nodeString[::-1]
 
     def moveTailToHead(self):
-        # Swap the last node with the head node by iterating over the entire dllist till you get the last node and modify the values for the previous, last & head node
-        
-        current = self.head
-        while current.next:
-            current = current.next
-        
-        # Get the previous node of the last node and modify it so, that it will be the last node ( no .next < = > .next = None)  
-        prev = current.prev
-        prev.next = None
+        # Swap the node data of the head & last
+        self.head.data, self.last.data = self.last.data, self.head.data
 
-        # Modify the values of the last node so that it will be like the 'head' node ( .prev is None & .next is the current .head that we have now ) 
-        current.next = self.head
-        self.head.prev = current
-        current.prev = None
-
-        # Update the head node to be the last node
-        self.head = current
-        
     def sumWithDLLIST(self, sum_dllist):
         # Create the sum & set it to 0 by default.
         sum_ = 0
