@@ -57,7 +57,7 @@ class SkipList(object):
                 raise ValueError("ASD")
             elif current.data > data and prev or (current.data < data and not current.next and prev) :
                 current = prev.down
-                prev = None
+                prev = None  
                 START_CURRENT = current
             elif current.data < data and not current.next and not prev:
                 current = START_CURRENT.down
