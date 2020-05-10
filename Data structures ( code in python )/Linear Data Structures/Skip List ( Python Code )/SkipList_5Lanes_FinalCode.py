@@ -336,6 +336,53 @@ class SkipList(object):
 
                 randomSkip = random.randint(1, 2)
 
+    def deleteNode(self, node, FAST_SEARCH = True):
+        '''
+        In order to delete the given node, we must be sure that it is on layer 0,  so the first thing that we will do, after we check that the given ndoe is of type Node, is to 'dig down' to layer 0. After we do that, we must search the closest node on layer 0 that has the data smaller than the given node. 
+        The argument 'FAST_SEARCH' works the same as at the self.append method. We will need to SEARCH for the given node. Hence we can use the self.search_ITERATIVE and self.search_FAST_RETURN.
+        '''
+        # Check the given node
+        if not type(node) == Node:
+            raise ValueError("The given node must be of node type.")
+        
+        # Dig down till we get to layer 0 with the node
+        while node.down:
+            node = node.down
+    
+        PREV_NODE_DATA = None
+        DELETE_NODE_DATA = node.data
+
+        INDEX_TRACK = 0
+        
+        for LAYER_DATA in self.LAYERS_DATA[0][0]:
+            if LAYER_DATA > DELETE_NODE_DATA:
+                PREV_NODE_DATA = self.LAYERS_DATA[0][0][INDEX_TRACK-2]
+                del self.LAYERS_DATA[0][0][INDEX_TRACK-1]
+                break
+
+            INDEX_TRACK += 1
+
+        if INDEX_TRACK == self.LAYERS_DATA[0][-1]:
+            PREV_NODE_DATA = self.LAYERS_DATA[0][0][INDEX_TRACK-2]
+            del self.LAYERS_DATA[0][0][-1]
+        
+        if FAST_SEARCH:
+            PREV_TRACK = self.search_FAST_RETURN(PREV_NODE_DATA, False)
+        else:
+            PREV_TRACK = self.search_ITEARTIVE(PREV_NODE_DATA, False)
+
+        # Decrement the length of the layer 0 in the self.LAYERS_DATA
+        self.LAYERS_DATA[0][-1] -= 1
+        
+        # Delete the node data from the node data list in the self.LAYERS_DATA
+        del self.LAYERS_DATA[0][-2][INDEX_TRACK-1] 
+
+        # Delete the node height from the layer 0 in the self.LAYERS_DATA
+        del self.LAYERS_DATA[0][1][INDEX_TRACK-1]
+
+        print("PREV_TRACK -- > {0}".format(PREV_TRACK.data))
+        print("node -- > {0}".format(node))
+
     ############### INSERTION / DELETION ###############
 
     ############### OTHERS ###############
@@ -401,8 +448,10 @@ class SkipList(object):
 
 SL = SkipList()
 
-for i in range(1, 21):
-    SL.append(i)
+SL.append(5)
+SL.append(1)
+
+SL.deleteNode(SL.last0)
 
 for i in range(5):
     print()
@@ -428,4 +477,3 @@ print(SL.LAYERS_DATA)
 
 for i in range(3):
     print()
-
