@@ -177,211 +177,6 @@ class SkipList(object):
 
     ############### INSERTION / DELETION ###############
 
-    def append(self, data, FAST_SEARCH = True):
-        '''
-        In order to append something to the list we must first find the closest node data to the node with the data that we want to append. In order for us to do that we must first search for the data and then get the node. FAST_SEARCH means that, when we will try to look for the node, we will use the self.FAST_RETURN method if FAST_SEARCH is True, otherwise, we will use the ITERATIVE method to search for something, that being the self.search_ITEARTIVE method
-
-        FAST_SEARCH True    == > self.search_FAST_RETURN
-        FAST_SEARCH False   == > self.search_ITERATIVE
-        '''
-
-        # Check if the head doesn't have a next node. If it doesn't have a next node then that means that the skip list is 'empty', it only has the -math.inf HEADS & LASTS without any binding between them ( no .prev & .next values set between them ). 
-        if not self.head0.next:
-            # 'Rebuild' the last node on layer0 and change it's .prev property to point to the head on layer0
-            self.last0 = Node(data)
-
-            self.last0.prev = self.head0
-            self.head0.next = self.last0
-
-            # Increment the number of nodes on layer 0 in the self.LAYERS_DATA
-            self.LAYERS_DATA[0][-1] += 1
-
-            # Append the new node data in on layer 0 in the self.LAYERS_DATA +++++ Append the new self.last0 node in the node list on layer 0 in self.LAYERS_DATA +++++ Set the height of the first node by default to be 1 on layer 0 in self.LAYERS_DATA
-            self.LAYERS_DATA[0][0].append(data)
-            self.LAYERS_DATA[0][-2].append(self.last0)
-            self.LAYERS_DATA[0][1].append(1)
-
-            # Move up with the node randomly.
-            randomSkip = random.randint(1, 2) # As far as the randomSkip variable is not 2, we can move up with it on the 5 different layers
-            LAYER_LEVEL = 1 # We will set the LAYER_LEVEL at 1, because in case we will move up with the node ( only as far as randomSkip is not 2 ), we are already on layer 0, so moving up will mean that we will start moving up on layer 1
-            current = self.last0 # Keep track of the current last node
-             
-            while randomSkip != 2:
-                '''
-                The string that we will try to exec:
-
-                self.last{LAYER_LEVEL} = Node(data)
-
-                self.last{LAYER_LEVEL}.prev = self.head{LAYER_LEVEL}
-                self.last{LAYER_LEVEL}.down = current
-                self.head{LAYER_LEVEL}.next = self.last{LAYER_LEVEL}
-
-                current.up = self.last{LAYER_LEVEL}
-                '''
-                exec("self.last{0} = Node(data)\nself.last{0}.prev = self.head{0}\nself.last{0}.down = current\nself.head{0}.next = self.last{0}\ncurrent.up = self.last{0}".format(LAYER_LEVEL))
-               
-                current = current.up
-
-                # Update the list current node on LAYERS_DATA
-                self.LAYERS_DATA[LAYER_LEVEL][-1] += 1 # Increase the length
-                self.LAYERS_DATA[LAYER_LEVEL][0].append(data) # Append the new added data
-                self.LAYERS_DATA[LAYER_LEVEL][-2].append(current) # Append the node
-                
-                # Increment the height of the node
-                self.LAYERS_DATA[0][1][1] += 1
-    
-                LAYER_LEVEL += 1
-                # See if the layer level has exceeded the limit of 5 layers, if that is the case then stop
-                if LAYER_LEVEL == 5: break
-
-                randomSkip = random.randint(1, 2)
-        else:
-            # Search for the closest node data that is still smaller than the data that we want to add on layer 0 ( looking for it on self.LAYERS_DATA )
-            INDEX_TRACK = 0
-            IS_LAST_NODE = False
-            for LAYER_DATA in self.LAYERS_DATA[0][0]:
-                if LAYER_DATA > data:
-                    self.LAYERS_DATA[0][0].insert(INDEX_TRACK, data)
-                    break
-
-                INDEX_TRACK += 1
-
-            if INDEX_TRACK == self.LAYERS_DATA[0][-1]:
-                self.LAYERS_DATA[0][0].append(data)
-                IS_LAST_NODE = True
-
-            # Get the previous node, 'the closest node data that is still smaller than the data that we want to add on layer 0'
-            PREV_TRACK = None
-            PREV_DATA_SEARCH = self.LAYERS_DATA[0][0][INDEX_TRACK-1]
-
-            # It doesn't matter if we will use search_FAST_RETURN or search_ITERATIVE, both arguments DIRECT_RETURN at both methods must be set to False because we need the node on the first layer, on layer0
-            if FAST_SEARCH:
-                PREV_TRACK = self.search_FAST_RETURN(PREV_DATA_SEARCH, False)
-            else:
-                PREV_TRACK = self.search_ITERATIVE(PREV_DATA_SEARCH, False) 
-
-            # 'Rebuild' the PREV_TRACK and the next node after the PREV_TRACK properties, so we can fit the new APPEND_NODE in. Set the new properties for the APPEND_NODE too
-            APPEND_NODE = Node(data)
-            APPEND_NODE.next = PREV_TRACK.next
-            APPEND_NODE.prev = PREV_TRACK
-
-            if PREV_TRACK.next:
-                PREV_TRACK.next.prev = APPEND_NODE
-
-            PREV_TRACK.next = APPEND_NODE
-
-            if IS_LAST_NODE:
-                self.last0 = self.last0.next
-            
-            # Change the layer 0 on the self.LAYERS_DATA dictionary
-            self.LAYERS_DATA[0][1].insert(INDEX_TRACK, 1)
-            self.LAYERS_DATA[0][-2].insert(INDEX_TRACK, APPEND_NODE)
-            self.LAYERS_DATA[0][-1] += 1
-
-            # Move the node up on the layers
-            randomSkip = random.randint(1, 2)
-
-            current = PREV_TRACK.next
-
-            LAYER_LEVEL = 1
-
-            while randomSkip != 2:
-                current_index = self.LAYERS_DATA[LAYER_LEVEL-1][-2].index(PREV_TRACK) + 1
-
-                # Update the PREV_TRACK node to be the last closest node on the new layer
-                while not PREV_TRACK.up:
-                    PREV_TRACK = PREV_TRACK.prev
-
-                PREV_TRACK = PREV_TRACK.up
-                PREV_TRACK_INDEX = self.LAYERS_DATA[LAYER_LEVEL][-2].index(PREV_TRACK)
-
-                CURRENT_HEAD_ON_LAYER = eval("self.head{0}".format(LAYER_LEVEL))
-                
-                APPEND_NODE = Node(data)
-                APPEND_NODE.prev = PREV_TRACK
-                APPEND_NODE.next = PREV_TRACK.next
-                APPEND_NODE.down = current
-
-                # current_index_track = self.LAYERS_DATA[LAYER_LEVEL][-2].index(current)
-                current.up = APPEND_NODE
-                
-                # Check if the layer has a new last node ( if the head node has a .next node element or not )
-                if not CURRENT_HEAD_ON_LAYER.next:
-                    # Create the new last node
-                    exec("self.last{0} = APPEND_NODE\nself.last{0}.prev = self.head{0}\nself.head{0}.next = self.last{0}".format(LAYER_LEVEL))
-                else:
-                    if not PREV_TRACK.next:
-                        PREV_TRACK.next = APPEND_NODE
-                        exec("self.last{0} = self.last{0}.next".format(LAYER_LEVEL))
-                    else:
-                        PREV_TRACK.next.prev = APPEND_NODE
-                        PREV_TRACK.next = APPEND_NODE
-                
-                        self.LAYERS_DATA[LAYER_LEVEL][-2][PREV_TRACK_INDEX+1] = PREV_TRACK.next # Update the next node
-
-                # Update the LAYERS_DATA for the new APPEND_NODE 
-                self.LAYERS_DATA[LAYER_LEVEL][0].insert(PREV_TRACK_INDEX+1, data)           # ADD IT'S DATA TO THE DATA LIST
-                self.LAYERS_DATA[LAYER_LEVEL][-2].insert(PREV_TRACK_INDEX+1, APPEND_NODE)   # ADD IT TO THE NODES LIST
-                self.LAYERS_DATA[LAYER_LEVEL][-1] += 1                                      # INCREMENT THE NUMBER OF NODES ON THE LAYER
-                self.LAYERS_DATA[0][1][INDEX_TRACK] += 1                                    # INCREMENT THE HEIGHT OF THE MAIN NODE ON LAYER 0
-                
-                self.LAYERS_DATA[LAYER_LEVEL-1][-2][current_index] = current                # Update the current node
-
-                # Update the current node
-                current = current.up
-
-                # Check the layer level. If it has reached the maximum number of layers, of 5, then stop the loop
-                LAYER_LEVEL += 1
-                if LAYER_LEVEL == 5: break
-
-                randomSkip = random.randint(1, 2)
-
-    def deleteNode(self, node, FAST_SEARCH = True):
-        '''
-        In order to delete the given node, we must be sure that it is on layer 0,  so the first thing that we will do, after we check that the given ndoe is of type Node, is to 'dig down' to layer 0. After we do that, we must search the closest node on layer 0 that has the data smaller than the given node. 
-        The argument 'FAST_SEARCH' works the same as at the self.append method. We will need to SEARCH for the given node. Hence we can use the self.search_ITERATIVE and self.search_FAST_RETURN.
-        '''
-        # Check the given node
-        if not type(node) == Node:
-            raise ValueError("The given node must be of node type.")
-        
-        # Dig down till we get to layer 0 with the node
-        while node.down:
-            node = node.down
-    
-        PREV_NODE_DATA = None
-        DELETE_NODE_DATA = node.data
-
-        INDEX_TRACK = 0
-        
-        for LAYER_DATA in self.LAYERS_DATA[0][0]:
-            if LAYER_DATA > DELETE_NODE_DATA:
-                PREV_NODE_DATA = self.LAYERS_DATA[0][0][INDEX_TRACK-2]
-                del self.LAYERS_DATA[0][0][INDEX_TRACK-1]
-                break
-
-            INDEX_TRACK += 1
-
-        if INDEX_TRACK == self.LAYERS_DATA[0][-1]:
-            PREV_NODE_DATA = self.LAYERS_DATA[0][0][INDEX_TRACK-2]
-            del self.LAYERS_DATA[0][0][-1]
-        
-        if FAST_SEARCH:
-            PREV_TRACK = self.search_FAST_RETURN(PREV_NODE_DATA, False)
-        else:
-            PREV_TRACK = self.search_ITEARTIVE(PREV_NODE_DATA, False)
-
-        # Decrement the length of the layer 0 in the self.LAYERS_DATA
-        self.LAYERS_DATA[0][-1] -= 1
-        
-        # Delete the node data from the node data list in the self.LAYERS_DATA
-        del self.LAYERS_DATA[0][-2][INDEX_TRACK-1] 
-
-        # Delete the node height from the layer 0 in the self.LAYERS_DATA
-        del self.LAYERS_DATA[0][1][INDEX_TRACK-1]
-
-        print("PREV_TRACK -- > {0}".format(PREV_TRACK.data))
-        print("node -- > {0}".format(node))
 
     ############### INSERTION / DELETION ###############
 
@@ -448,10 +243,10 @@ class SkipList(object):
 
 SL = SkipList()
 
-SL.append(5)
-SL.append(1)
+for i in range(1, 21):
+    SL.append(i)
 
-SL.deleteNode(SL.last0)
+# SL.deleteNode(SL.head0.next)
 
 for i in range(5):
     print()
@@ -477,3 +272,10 @@ print(SL.LAYERS_DATA)
 
 for i in range(3):
     print()
+
+print("SL.LAYERS_DATA[2][-2][-1].data -- > {0}".format(SL.LAYERS_DATA[2][-2][-1].data))
+print("SL.LAYERS_DATA[2][-2][-1].up.data -- > {0}".format(SL.LAYERS_DATA[2][-2][-1].up.data))
+print("SL.LAYERS_DATA[2][-2][-1].prev.data -- > {0}".format(SL.LAYERS_DATA[0][-2][-1].prev.data))
+print("SL.last2.data -- > {0}".format(SL.last2.data))
+print("SL.last2.up.data -- > {0}".format(SL.last2.data))
+print("SL.last2.prev.data -- > {0}".format(SL.last2.data))
