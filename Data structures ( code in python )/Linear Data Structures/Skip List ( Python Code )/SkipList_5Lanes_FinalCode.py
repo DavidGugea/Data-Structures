@@ -128,6 +128,8 @@ class SkipList(object):
             4 : [ [-math.inf], 1 ]
         }
 
+        # *NOTE* : lane & layer are the same thing #
+
     ##################### GENERAL METHODS #####################
 
     def getLength(self, lane):
@@ -398,40 +400,41 @@ class SkipList(object):
                 
     def deleteNode(self, node):
         ''' Delete the given node '''
-        # Make sure the node is on layer 0
+        # Check the given node
+        if type(node) != Node:
+            raise ValueError("The given node has to be of type 'Node'. It is of type : {0}".format(type(node)))
+
+        # Make sure that the given node is on lane 0
         while node.down:
             node = node.down
-
-        # Get the PREV_NODE & keep track if the node that we want to delete is the last node. If it is the last node, that means that after we will delete it, the last node will be PREV_NODE
-        PREV_NODE = node.prev
-    
+        
+        # Delete the height of the node on layer 0 in self.LAYERS_DATA
+        del self.LAYERS_DATA[0][1][self.indexOf(node, 0)]
+        
         current = node
-        LAYER_LEVEL = 0 
+        LAYER_LEVEL = 0
 
-        while current:  
-            # Update the self.LAYERS_DATA
-            # print(node, self.last0, LAYER_LEVEL)
-            # del self.LAYERS_DATA[LAYER_LEVEL][0][self.indexOf(current, LAYER_LEVEL)] # LAYER DATA
-            # self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1 # LAYER LENGTH
-
-            # Check if there is a last node, if there is set the IS_LAST_NODE variable to True, otherwise, change it's .prev property to point to the node before the node that we want to delete
+        while current:
+            # If the node that we want to delete is the last node, then, after we will delete it, the node before it will become the new last node on the lane.
             IS_LAST_NODE = False
+            PREV_NODE = current.prev
+
+            PREV_NODE.next = current.next
 
             if current.next:
                 current.next.prev = PREV_NODE
             else:
                 IS_LAST_NODE = True
-
-            PREV_NODE.next = current.next
-
+            
+            # Update the last node on the lane in case that the node that we had to delete was the last node, so then the last node on the lane will be updated to be the lane before the node that we wanted to delete, so that is the PREV_NODE
             if IS_LAST_NODE:
                 exec("self.last{0} = PREV_NODE".format(LAYER_LEVEL))
-            
-            while not PREV_NODE.up:
-                PREV_NODE = PREV_NODE.prev
 
-            # Update the PREV_NODE, the curret node & increment the layer level
-            PREV_NODE = PREV_NODE.up
+            # Update the self.LAYERS_DATA
+            del self.LAYERS_DATA[LAYER_LEVEL][0][self.indexOf(current, LAYER_LEVEL)] # Delete from the node data list 
+            self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1                                   # Decrement the length of the nodes on the current lane
+
+            # Update the current node & the layer level
             current = current.up
             
             LAYER_LEVEL += 1
@@ -455,7 +458,6 @@ for LAYER_LEVEL in list(range(4, -1, -1)):
 
 for i in range(2):
     print()
-
 
 for LAYER_LEVEL in list(range(4, -1, -1)): 
     NODE_DATA = list()
