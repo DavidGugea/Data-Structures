@@ -41,18 +41,18 @@ class SkipList(object):
         ##################### INSERTION / DELETION / SEARCH #####################
         ##################### OTHERS #####################
 
-        ~ Merge                                                                             ( self.merge(MERGE_SKIP_LIST ) )                                        -> None                     []
+        ~ Merge                                                                             ( self.merge(MERGE_SKIP_LIST ) )                                        -> None                     [x]
 
-        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                                             -> None                     []
-        ~ Is palindrome                                                                     ( self.isPalindrome(lane) )                                             -> None                     []
+        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                                             -> None                     [x]
+        ~ Is palindrome                                                                     ( self.isPalindrome(lane) )                                             -> None                     [x]
 
-        ~ Sum with another skip list                                                        ( self.sumWith(SUM_SKIP_LIST, lanes_MAIN, lanes_SUM) )                  -> None                     []
+        ~ Sum with another skip list                                                        ( self.sumWith(SUM_SKIP_LIST, lanes_MAIN, lanes_SUM) )                  -> None                     [x]
 
-        ~ Split skip list in half                                                           ( self.splitInHalf(lane) )                                              -> [ list_1, list_2 ]       []
-        ~ Split skip list after node                                                        ( self.splitAfterNode(lane, node ) )                                    -> [ list_1, list_2 ]       []
-        ~ Split skip list at index                                                          ( self.slitAtIndex(lane, index) )                                       -> [ list_1, list_2 ]       []
+        ~ Split skip list in half                                                           ( self.splitInHalf(lane) )                                              -> [ list_1, list_2 ]       [x]
+        ~ Split skip list after node                                                        ( self.splitAfterNode(lane, node ) )                                    -> [ list_1, list_2 ]       [x]
+        ~ Split skip list at index                                                          ( self.slitAtIndex(lane, index) )                                       -> [ list_1, list_2 ]       [x]
 
-        ~ Pairs with sum                                                                    ( self.pairsWithSum(target_sum, lane) )                                 -> None                     []
+        ~ Pairs with sum                                                                    ( self.pairsWithSum(target_sum, lane) )                                 -> None                     [x]
     
         ##################### OTHERS #####################
 
