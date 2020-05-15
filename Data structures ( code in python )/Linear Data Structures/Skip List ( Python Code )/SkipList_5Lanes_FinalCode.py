@@ -33,9 +33,9 @@ class SkipList(object):
 
         ~ Append                                                                            ( self.append(data) )                                                   -> None                     [x]
 
-        ~ Delete node                                                                       ( self.deleteNode(node) )                                               -> None                     []
-        ~ Delete at index                                                                   ( self.deleteAtIndex(index) )                                           -> None                     []
-        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                                       -> None                     []
+        ~ Delete node                                                                       ( self.deleteNode(node) )                                               -> None                     [x]
+        ~ Delete at index                                                                   ( self.deleteAtIndex(index, lane) )                                     -> None                     [x]
+        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                                       -> None                     [x]
 
         ##################### INSERTION / DELETION / SEARCH #####################
         ##################### OTHERS #####################
@@ -402,42 +402,77 @@ class SkipList(object):
         ''' Delete the given node '''
         # Check the given node
         if type(node) != Node:
-            raise ValueError("The given node has to be of type 'Node'. It is of type : {0}".format(type(node)))
+            raise ValueError("The given node must be of type node. The type of the node that you gave was : {0}".format(str(type(node))))
 
-        # Make sure that the given node is on lane 0
+        # Make sure that the node is on layer 0
         while node.down:
             node = node.down
         
-        # Delete the height of the node on layer 0 in self.LAYERS_DATA
-        del self.LAYERS_DATA[0][1][self.indexOf(node, 0)]
-        
-        current = node
         LAYER_LEVEL = 0
-
+        current = node
+        PREV_NODE = node.prev
+        
+        # Delete the height of the node on layer 0
+        del self.LAYERS_DATA[0][1][self.indexOf(node, 0)]
+    
         while current:
-            # If the node that we want to delete is the last node, then, after we will delete it, the node before it will become the new last node on the lane.
+            # Update self.LAYERS_DATA
+            del self.LAYERS_DATA[LAYER_LEVEL][0][self.indexOf(current, LAYER_LEVEL)] # Update the node data list
+            self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1 # Decrement the length of the lane
+            
+        
+            # Find out if the node that we want to delete is the last node. If it is the last node then, after we will delete it, the last node will remain the previous node before the node that we wanted to delete, that is in our case PREV_NODE
             IS_LAST_NODE = False
-            PREV_NODE = current.prev
-
-            PREV_NODE.next = current.next
-
+            
+            # Find out if we have the last node, if we don't have the last node then update the .prev pointer of the node after the node that we want to delete to be the previous node of the node that we want to delete, so PREV_NODE
             if current.next:
                 current.next.prev = PREV_NODE
             else:
                 IS_LAST_NODE = True
             
-            # Update the last node on the lane in case that the node that we had to delete was the last node, so then the last node on the lane will be updated to be the lane before the node that we wanted to delete, so that is the PREV_NODE
+            # Update the .next pointer of the previous node 
+            PREV_NODE.next = current.next
+            
+            # Update the last node to be PREV_NODE in case of IS_LAST_NODE
             if IS_LAST_NODE:
                 exec("self.last{0} = PREV_NODE".format(LAYER_LEVEL))
-
-            # Update the self.LAYERS_DATA
-            del self.LAYERS_DATA[LAYER_LEVEL][0][self.indexOf(current, LAYER_LEVEL)] # Delete from the node data list 
-            self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1                                   # Decrement the length of the nodes on the current lane
-
-            # Update the current node & the layer level
-            current = current.up
             
+            # Update the current & the previous node
+            current = current.up
+            if current:
+                PREV_NODE = current.prev
+            
+            # Increment the layer level
             LAYER_LEVEL += 1
+
+    def deleteAtIndex(self, index, lane):
+        # Check the lane
+        if not 0 <= lane < 5:
+            raise ValueError("The given lane must be something between 0 & 4. You gave : {0}".format(lane))
+        
+        # Check the index
+        if not 0 <= index < self.LAYERS_DATA[lane][-1]:
+            raise ValueError("The given index is either too big or too small for the given lane. The given index was {0} and the length of the lane was {1}".format(index, self.LAYERS_DATA[lane][-1]))
+
+        # Get the node at the given index on the given lane
+        NODE_TO_DELETE = self.atIndex(index, lane)
+
+        # Delete it 
+        self.deleteNode(NODE_TO_DELETE)
+
+    def deleteNodeWithData(self, data):
+        # Look on the first lane ( 0'th lane ) for the first node that has this data
+        current = self.head0
+        while current:
+            if current.data == data:
+                # Delete the node
+                self.deleteNode(current)
+                return
+
+            current.next
+            
+        # If we passed the while loop, that means that we didn't delete any node because we didn't find any node to match the given data. So we can raise a value error
+        raise ValueError("The given data couldn't be found in the skip list.")
 
     ##################### INSERTION / DELETION / SEARCH #####################
 
