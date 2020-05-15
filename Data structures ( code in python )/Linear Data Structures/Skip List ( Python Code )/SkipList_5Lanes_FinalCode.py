@@ -23,7 +23,7 @@ class SkipList(object):
         ~ Create __len__(self) method                                                       ( len(self) )                                                           -> integer                  [x]
 
         ~ Node at index                                                                     ( self.atIndex(index, lane) )                                           -> Node object              [x]
-        ~ Get index of                                                                      ( self.indexOf(node, lane) )                                            -> Integer                  [x]
+        ~ Get index of                                                                      ( self.indexOf(node, lane) )                                            -> integer                  [x]
 
         ~ Get node data list                                                                ( self.getNodeData() )                                                  -> list                     [x]
 
@@ -44,7 +44,6 @@ class SkipList(object):
         ~ Merge                                                                             ( self.merge(MERGE_SKIP_LIST ) )                                        -> None                     [x]
 
         ~ Remove duplicates                                                                 ( self.removeDuplicates() )                                             -> None                     [x]
-        ~ Is palindrome                                                                     ( self.isPalindrome(lane) )                                             -> None                     [x]
 
         ~ Sum with another skip list                                                        ( self.sumWith(SUM_SKIP_LIST, lanes_MAIN, lanes_SUM) )                  -> None                     [x]
 
@@ -195,9 +194,10 @@ class SkipList(object):
     ##################### GENERAL METHODS #####################
     ##################### INSERTION / DELETION / SEARCH #####################
 
-    def search(self, data, DIRECT_RETURN = True):
+    def search(self, data, DIRECT_RETURN = True, LAST = True):
         ''' Return the first node found with the given data '''
         # When the DIRECT_RETURN argument is True we will return the node the first time we find it, if it is False, we will 'dig' down till we get the node on the layer 0 and then return it, when it is on the layer 0
+        # The LAST argument means, that in case that we have another nodes in front of the node that we are searching with the given data, we will go through them all till we find a node that doesn't have the data that we are searching for anymore
         # Start at the head node on the last layer
         prev = None
         current = self.head4
@@ -205,11 +205,28 @@ class SkipList(object):
         
         while current:
             if current.data == data:
-                if DIRECT_RETURN: return current
+                if DIRECT_RETURN:
+                    if not LAST:
+                        return current
+                    else:
+                        while current.next:
+                            if current.next.data == data:
+                                current = current.next
+                            else:
+                                break
+                        
+                        return current
                 else:
                     while current.down:
                         current = current.down
-
+                    
+                    if LAST:
+                        while current.next:
+                            if current.next.data == data:
+                                current = current.next
+                            else:
+                                break
+                    
                     return current
             elif current.data < data and current.next:
                 prev = current
@@ -286,9 +303,9 @@ class SkipList(object):
 
             # When a place for the append node data is found, insert in on layer 0 on the self.LAYERS_DATA
             for NODE_DATA in self.LAYERS_DATA[0][0]:
-                if NODE_DATA > data:
+                if NODE_DATA >= data:
                     PREV_NODE_DATA = self.LAYERS_DATA[0][0][INDEX_TRACK - 1]
-
+                    
                     # Insert the new node data on layer 0 in the self.LAYERS_DATA
                     self.LAYERS_DATA[0][0].insert(INDEX_TRACK, data)
 
@@ -315,7 +332,7 @@ class SkipList(object):
             self.LAYERS_DATA[0][-1] += 1
 
             # Get the previous node using the PREV_NODE_DATA string, DIRECT_RETURN has to be set to False because we need the node on the first lane ( 0'th lane )
-            PREV_NODE = self.search(PREV_NODE_DATA, False)
+            PREV_NODE = self.search(PREV_NODE_DATA, False, True)
 
             # Create the append node
             APPEND_NODE = Node(data)
@@ -492,24 +509,11 @@ class SkipList(object):
 
         for LAYER_DATA in self.LAYERS_DATA[0][0]:
             if self.LAYERS_DATA[0][0].count(LAYER_DATA) - 1 != 0:
-                if self.LAYERS_DATA[0][0].count(LAYER_DATA) in REPEAT_DICT.keys():
-                    self.REPEAT_DICT[LAYER_DATA] += 1
-                else:
-                    self.REPEAT_DICT[LAYER_DATA] = 1
-
+                REPEAT_DICT[LAYER_DATA] = self.LAYERS_DATA[0][0].count(LAYER_DATA) - 1
+        
         for REPEAT_LAYER_DATA in REPEAT_DICT:
             for timesRepeated in range(REPEAT_DICT[REPEAT_LAYER_DATA]):
-                self.deleteNodeWithData(LAYER_DATA)
-
-    def isPalindrome(self, lane):
-        ''' Store the node data in a string on the given lane and find out if the string is the same upside down or not '''
-        # Check the given lane
-        if not 0 <= lane < 5:
-            raise ValueError("The given lane has to be something in between 0 and 4. You gave : {0}".format(lane))
-
-        NODE_DATA_STRING = "".join(map(str, self.LAYERS_DATA[lane][0]))
-        
-        return NODE_DATA_STRING == NODE_DATA_STRING[::-1]
+                self.deleteNodeWithData(REPEAT_LAYER_DATA)
     
     def sumWith(self, SUM_SKIP_LIST, lanes_MAIN, lanes_SUM):
         ''' Return the sum between the main skip list ( self ) and the SUM_SKIP_LIST on the given lanes. '''
@@ -537,7 +541,8 @@ class SkipList(object):
             raise ValueError("The given SUM_SKIP_LIST must be of type SkipList. The given SUM_SKIP_LIST is {0} and has a type of {1}".format(SUM_SKIP_LIST, str(type(SUM_SKIP_LIST))))
 
         # Check each number in the given lists of lanes. 
-        CHECK_FUNCTION = lambda lane_number: raise ValueError("The given lane number must be between 0 and 4. You gave : {0}".format(lane_number)) if not 0 <= lane_number < 5
+        CHECK_FUNCTION = lambda lane_number: exec('raise ValueError("The given lane number must be between 0 and 4. You gave : {0}") if not 0 <= lane_number < 5'.format(lane_number))
+
         map(CHECK_FUNCTION, lanes_MAIN)
         map(CHECK_FUNCTION, lanes_SUM)
 
@@ -548,13 +553,13 @@ class SkipList(object):
         for layer_level in lanes_MAIN:
             MAIN_DATA.extend(self.LAYERS_DATA[layer_level][0])
         for layer_level in lanes_SUM:
-            SUM_DATA.extend(self.LAYERS_DATA[layer_level][0])
+            SUM_DATA.extend(SUM_SKIP_LIST.LAYERS_DATA[layer_level][0])
 
-        # Filter both lists so that only the numbers ( integers & floats ) remain
-        FILTER_FUNCTION = lambda data: type(data) == int or type(data) == float
+        # Filter both lists so that only the numbers ( integers & floats ) remain ( *NOTE* : we don't want add numbers to -math.inf, because that will result in -math.inf -> -math.inf + x = -math.inf <- || We only want to sum the other numbers that are not -math.inf
+        FILTER_FUNCTION = lambda data: type(data) == int or type(data) == float and data != -math.inf
 
         MAIN_DATA = list(filter(FILTER_FUNCTION, MAIN_DATA))
-        SUM_DATA  = list(filter(FILTER_FUNCTION, MAIN_DATA))
+        SUM_DATA  = list(filter(FILTER_FUNCTION, SUM_DATA))
 
         # Return the sum between both lists
         return sum(MAIN_DATA) + sum(SUM_DATA)
@@ -580,7 +585,7 @@ class SkipList(object):
         NODE_DATA_LIST = self.LAYERS_DATA[lane][0]
         INDEX_OF_NODE = self.indexOf(node, lane)
 
-        return [ NODE_DATA_LIST[:INDEX_OF_NODE], NODE_DATA_LIST[INDEX_OF_NODE:] ]
+        return [ NODE_DATA_LIST[:INDEX_OF_NODE+1], NODE_DATA_LIST[INDEX_OF_NODE+1:] ]
 
     def splitAtIndex(self, lane, index):
         ''' Return a list that contains two other lists with the node data split at the given index on the given lane '''
@@ -609,38 +614,3 @@ class SkipList(object):
         return PAIRS
 
     ##################### OTHERS #####################
-
-SL = SkipList()
-
-SL.append(1)
-SL.append(2)
-
-for i in range(3):
-    print()
-
-for LAYER_LEVEL in list(range(4, -1, -1)):
-    HEAD = eval("SL.head{0}".format(LAYER_LEVEL))
-    LAST = eval("SL.last{0}".format(LAYER_LEVEL))
-
-    print("LAYER LEVEL {0} -- > {1} // {2}".format(LAYER_LEVEL, HEAD.data, LAST.data))
-
-for i in range(2):
-    print()
-
-for LAYER_LEVEL in list(range(4, -1, -1)): 
-    NODE_DATA = list()
-
-    exec("current = SL.head{0}\nwhile current:\n\tNODE_DATA.append(current.data)\n\tcurrent = current.next".format(LAYER_LEVEL))
-
-    print("{0} -- > {1}".format(LAYER_LEVEL, NODE_DATA))
-
-for i in range(2):
-    print()
-
-COUNTER = 4
-for VALUE in SL.getNodeData()[::-1]:
-    print("{0} -- > {1}".format(COUNTER, VALUE))
-    COUNTER -= 1
-
-for i in range(5):
-    print()
