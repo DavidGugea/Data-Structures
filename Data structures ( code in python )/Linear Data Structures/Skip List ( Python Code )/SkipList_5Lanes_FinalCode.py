@@ -30,7 +30,7 @@ class SkipList(object):
         ##################### GENERAL METHODS #####################
         ##################### INSERTION / DELETION / SEARCH #####################
 
-        ~ Search                                                                            ( self.search(data, DIRECT_RETURN = True) )                             -> None                     [x]
+        ~ Search                                                                            ( self.search(data, DIRECT_RETURN = True, LAST = True) )                -> None                     [x]
 
         ~ Append                                                                            ( self.append(data) )                                                   -> None                     [x]
 
