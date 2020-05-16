@@ -201,7 +201,6 @@ class SkipList(object):
         # Start at the head node on the last layer
         prev = None
         current = self.head4
-        START_CURRENT = current 
         
         while current:
             if current.data == data:
@@ -231,18 +230,12 @@ class SkipList(object):
             elif current.data < data and current.next:
                 prev = current
                 current = current.next
-            elif current.data < data and not current.next:
+            elif ( current.data < data and not current.next ) or ( current.data > data and not prev ):
                 current = current.down
                 prev = None
-                START_CURRENT = current
             elif current.data > data and prev:
                 current = prev.down
                 prev = None
-                START_CURRENT = current
-            elif current.data > data and not prev:
-                current = START_CURRENT.down
-                prev = None
-                START_CURRENT = current
 
         # If we passed the 'while' loop, that means that we didn't return the node, so, we will have to raise a value error because that means that we didn't find any node with the given data
         raise ValueError("The given data couldn't be found in the skip list.")
@@ -356,6 +349,7 @@ class SkipList(object):
             while randomSkip != 2:
                 # Find the prev node that still has an .up value and update it 
                 while not PREV_NODE.up:
+                    INDEX_TRACK -= 1 # Since we are moving backwards with the prev node because we can't move it up, the index of the node data will also have to move backwards
                     PREV_NODE = PREV_NODE.prev
 
                 PREV_NODE = PREV_NODE.up
@@ -395,6 +389,15 @@ class SkipList(object):
                     if IS_NEW_LAST_NODE:
                         exec("self.last{0} = self.last{0}.next".format(LAYER_LEVEL))
 
+                for i in range(2):
+                    print()
+
+                print("INDEX_TRACK -- > {0}".format(INDEX_TRACK))
+                print("DATA        -- > {0}".format(data))
+
+                for i in range(2):
+                    print() 
+
                 # Update layers data
                 self.LAYERS_DATA[0][1][INDEX_TRACK] += 1 # UPDATE HEIGHT OF THE NODE ON LAYER 0
                 self.LAYERS_DATA[LAYER_LEVEL][0].insert(INDEX_TRACK, data) # Node data
@@ -427,11 +430,10 @@ class SkipList(object):
             # Update self.LAYERS_DATA
             del self.LAYERS_DATA[LAYER_LEVEL][0][self.indexOf(current, LAYER_LEVEL)] # Update the node data list
             self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1 # Decrement the length of the lane
-            
-        
+
             # Find out if the node that we want to delete is the last node. If it is the last node then, after we will delete it, the last node will remain the previous node before the node that we wanted to delete, that is in our case PREV_NODE
             IS_LAST_NODE = False
-            
+
             # Find out if we have the last node, if we don't have the last node then update the .prev pointer of the node after the node that we want to delete to be the previous node of the node that we want to delete, so PREV_NODE
             if current.next:
                 current.next.prev = PREV_NODE
