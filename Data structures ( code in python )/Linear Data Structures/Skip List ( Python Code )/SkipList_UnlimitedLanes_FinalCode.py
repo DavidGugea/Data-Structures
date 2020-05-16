@@ -239,9 +239,108 @@ class SkipList(object):
             elif current.data > data and prev:
                 current = prev.down
                 prev = None
+    
+    def append(self, data):
+        ''' Append a node with the given data. It is sorted automatically '''
+        # Check if the skip list have last nodes. They are normally -math.inf, but that means that they don't have any connection with the head nodes, so we will have to rebuild them 
+        if not self.head0.next:
+            # Rebuild the last node on the first layer and change it's connections with the head
+            self.last0 = Node(data)
+
+            self.last0.prev = self.head0
+            self.head0.next = self.last0
+            
+            # Update the self.LAYERS_DATA dict
+            self.LAYERS_DATA[0][0].append(data) # NODE DATA LIST
+            self.LAYERS_DATA[0][1].append(1)    # HEIGHT OF THE NODE ( by default is 1 because we didn't go up on the other lanes with it yet )
+            self.LAYERS_DATA[0][-1] += 1        # INCREMENT THE LENGTH OF THE LIST
+
+            current = self.last0
+            LAYER_LEVEL = 1
+            randomSkip = random.randint(1, 2)
+
+            while randomSkip != 2:
+                # GET THE HEAD & LAST NODES -- > set up their pointers after creating a new last node
+                '''
+                STRING TO EXEC :
+
+                self.last{LAYER_LEVEL} = Node(data)
+
+                self.last{LAYER_LEVEL}.prev = self.head{LAYER_LEVEL}
+                self.last{LAYER_LEVEL}.down = current
+                current.up = self.last{LAYER_LEVEL}
+
+                self.head{LAYER_LEVEL}.next = self.last{LAYER_LEVEL}
+                '''
+
+                exec("self.last{0} = Node(data)\nself.last{0}.prev = self.head{0}\nself.last{0}.down = current\ncurrent.up = self.last{0}\nself.head{0}.next = self.last{0}".format(LAYER_LEVEL))
+                
+                # Update self.LAYERS_DATA
+                self.LAYERS_DATA[0][1][-1] += 1                 # Increment the length of the node on layer 0
+                self.LAYERS_DATA[LAYER_LEVEL][0].append(data)   # NODE DATA LIST 
+                self.LAYERS_DATA[LAYER_LEVEL][-1] += 1          # Length of the lane
+
+                # Update the current node ( to go up ) & the randomSkip value
+                current = current.up
+                randomSkip = random.randint(1, 2)
+
+                LAYER_LEVEL += 1
+                if LAYER_LEVEL == self.NUMBER_OF_LANES:
+                    break
 
     ##################### INSERTION / DELETION / SEARCH #####################
 
 SL = SkipList(5)
 
-print(SL.search(-math.inf, DIRECT_RETURN = False) == SL.head0)
+##################################### TEST CODE #####################################
+
+SL.append(5)
+
+##################################### TEST CODE #####################################
+
+for i in range(3):
+    print()
+
+##################################### HEAD & LAST NODES #####################################
+
+print("HEAD & LAST NODES -- > ")
+print()
+for LAYER_LEVEL in range(SL.NUMBER_OF_LANES-1, -1, -1):
+    print("{0} -- > {1} // {2}".format(LAYER_LEVEL, eval("SL.head{0}.data".format(LAYER_LEVEL)), eval("SL.last{0}.data".format(LAYER_LEVEL))))
+print()
+print("< -- HEAD & LAST NODES ")
+
+##################################### HEAD & LAST NODES #####################################
+
+for i in range(5):
+    print()
+
+##################################### AUTOMATIC ITERATION #####################################
+
+print("AUTOMATIC ITERATION -- > ")
+print()
+for LAYER_LEVEL in range(SL.NUMBER_OF_LANES-1, -1, -1):
+    NODE_DATA_LIST = list()
+    exec("current = SL.head{0}\nwhile current:\n\tNODE_DATA_LIST.append(current.data)\n\tcurrent = current.next".format(LAYER_LEVEL))
+    print("{0} -- > {1}".format(LAYER_LEVEL, NODE_DATA_LIST))
+print()
+print("< -- AUTOMATIC ITEARTION ")
+
+##################################### AUTOMATIC ITERATION #####################################
+
+for i in range(5):
+    print()
+
+##################################### LAYERS DATA #####################################
+
+print("LAYERS DATA -- > ")
+print()
+for LAYER_LEVEL in list(SL.LAYERS_DATA.keys())[::-1]:
+    print("{0} -- > {1}".format(LAYER_LEVEL, SL.LAYERS_DATA[LAYER_LEVEL]))
+print()
+print("< -- LAYERS DATA ")
+
+##################################### LAYERS DATA #####################################
+
+for i in range(3):
+    print()
