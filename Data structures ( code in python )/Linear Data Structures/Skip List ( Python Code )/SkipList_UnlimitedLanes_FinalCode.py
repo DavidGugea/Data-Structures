@@ -140,7 +140,50 @@ class SkipList(object):
 
     def atIndex(self, index, lane):
         ''' Return the given node at the given index on the given lane '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. The lane that you gave was : {1}".format(self.NUMBER_OF_LANES-1, lane))
         
+        # Check the given index
+        if not 0 <= index < self.LAYERS_DATA[lane][-1]:
+            raise IndexError("The given index was either too big or too small for the given lane. It must be something between 0 and {0}. The given index was {1}".format(self.LAYERS_DATA[lane][-1]-1,index))
+
+        # Return the node data at the given index on the given lane
+        return self.LAYERS_DATA[lane][0][index]
+    
+    def indexOf(self, node, lane):
+        ''' Return the index of the given node on the given lane '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. The lane that you gave was : {1}".format(self.NUMBER_OF_LANES-1, lane))
+
+        # Check the given node
+        if type(node) != Node:
+            raise ValueError("The given node must be of type node. The given 'node' was {0} which has a type of {1}".format(node, str(type(node))))
+
+        # Keep track of the current index while iterating through the given lane.
+        current = eval("self.head{0}".format(lane))
+        index = 0
+
+        while current:
+            if current == node:
+                return index
+
+            current = current.next
+            index += 1
+
+        # If we passed the while loop, that means that we didn't return the index, so, that means that the given node couldn't be found on the given lane. We will raise a value error because of that
+        raise ValueError("The given node couldn't be found on the given lane. The node data was {0} and the given lane was {1}".format(node.data, lane))
+
+    def getNodeData(self):
+        ''' Return a nested list. Each list in the nested list represents all the node data on a specific layer. The first list has the node data of the first layer ( the 0'th layer ) and, while we go through the list we increment the layer level '''
+
+        LAYER_DATA = list()
+
+        for LAYER_LEVEL in range(self.NUMBER_OF_LANES):
+            LAYER_DATA.append(self.LAYERS_DATA[LAYER_LEVEL][0])
+
+        return LAYER_DATA
 
     ##################### GENERAL METHODS ####################
 
