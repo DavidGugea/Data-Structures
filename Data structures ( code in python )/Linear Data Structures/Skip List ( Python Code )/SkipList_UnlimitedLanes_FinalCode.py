@@ -258,7 +258,7 @@ class SkipList(object):
             current = self.last0
             LAYER_LEVEL = 1
             randomSkip = random.randint(1, 2)
-
+        
             while randomSkip != 2:
                 # GET THE HEAD & LAST NODES -- > set up their pointers after creating a new last node
                 '''
@@ -287,6 +287,123 @@ class SkipList(object):
                 LAYER_LEVEL += 1
                 if LAYER_LEVEL == self.NUMBER_OF_LANES:
                     break
+        else:
+            # Search for the first node data that is bigger than or equal to the node data that we want to append on layer 0.
+            PREV_NODE_DATA = None
+            index = 0
+            IS_LAST_NODE = False 
+
+            for LAYER_DATA in self.LAYERS_DATA[0][0]:
+                if LAYER_DATA >= data:
+                    PREV_NODE_DATA = self.LAYERS_DATA[0][0][index - 1]
+                    break
+
+                index += 1
+            
+            # If we passed the for loop and we still couldn't find a node data that is bigger than the node data that we want to append, that means that the node data that we want to append is the biggest, so the PREV_NODE_DATA will be the data of the last node
+            if not PREV_NODE_DATA: PREV_NODE_DATA = self.last0.data
+
+            # Update self.LAYERS_DATA
+            self.LAYERS_DATA[0][0].insert(index, data)  # NODE DATA LIST
+            self.LAYERS_DATA[0][1].insert(index, 1)     # Height of the node ( defaults to 1 because we didn't go up on the layers with it yet )
+            self.LAYERS_DATA[0][-1] += 1                # Increment the length of the lane
+
+            # Get the prev node using the found PREV_NODE_DATA
+            PREV_NODE = self.search(PREV_NODE_DATA, DIRECT_RETURN = False, LAST = False) # We will set the DIRECT_RETURN to be False because we need the node to be on layer 0
+            
+            '''
+            print("PREV_NODE_DATA       -- > {0}".format(PREV_NODE_DATA))
+            print("PREV_NODE.data       -- > {0}".format(PREV_NODE.data))
+
+            print("index                -- > {0}".format(index))
+            print("PREV_NODE.prev       -- > {0}".format(PREV_NODE.prev))
+            '''
+        
+            # Create the append node and set its properties and the other properties of the needed nodes (PREV_NODE & PREV_NODE.next), in order to insert it at the right place
+            APPEND_NODE = Node(data)
+
+            APPEND_NODE.prev = PREV_NODE
+            APPEND_NODE.next = PREV_NODE.next
+
+            if PREV_NODE.next:
+                PREV_NODE.next.prev = APPEND_NODE 
+            else:
+                print("IS NEW LAST NODE")
+                IS_LAST_NODE = True
+            
+            PREV_NODE.next = APPEND_NODE
+
+            if IS_LAST_NODE:
+                self.last0 = self.last0.next
+
+            # Go up with the node on the other layers
+            current = PREV_NODE.next
+            LAYER_LEVEL = 1
+            randomSkip = random.randint(1, 2)
+            print("INDEX -- > {0}".format(index))
+            START_INDEX = index # Keep the current index of the APPEND_NODE stored in a variable so we will be able to increase the update the height of the node on layer 0 on self.LAYERS_DATA when it goes up
+
+            while randomSkip != 2:
+                # ~ Update the previous node to be on the current lane
+                while not PREV_NODE.up:
+                    PREV_NODE = PREV_NODE.prev
+                    index -= 1
+
+                PREV_NODE = PREV_NODE.up
+
+                # Get the HEAD NODE on the current layer
+                HEAD_NODE = eval("self.head{0}".format(LAYER_LEVEL))
+                
+                # ~ INSERT THE APPEND NODE 
+
+                # Check if the HEAD_NODE has a .next property ( if the current lane has a new last node, not the default -math.inf last node )
+                if not HEAD_NODE.next:
+                    '''
+                    STRING TO EXEC:
+                    
+                    self.last{LAYER_LEVEL} = Node(data)
+                    self.last{LAYER_LEVEL}.prev = self.head{LAYER_LEVEL}
+                    self.last{LAYER_LEVEL}.down = current
+
+                    self.head{LAYER_LEVEL}.next = self.last{LAYER_LEVEL}
+
+                    current.up = self.last{LAYER_LEVEL}
+                    '''
+
+                    exec("self.last{0} = Node(data)\nself.last{0}.prev = self.head{0}\nself.last{0}.down = current\nself.head{0}.next = self.last{0}\ncurrent.up = self.last{0}".format(LAYER_LEVEL))
+                else:
+                    # Create the append node and modify it's and the current's node properties
+                    APPEND_NODE = Node(data)
+
+                    APPEND_NODE.prev = PREV_NODE
+                    APPEND_NODE.next = PREV_NODE.next
+                    current.up = APPEND_NODE
+
+                    IS_NEW_LAST_NODE_ON_CURRENT_LANE = False
+
+                    if PREV_NODE.next:
+                        PREV_NODE.next.prev = APPEND_NODE
+                    else:
+                        IS_NEW_LAST_NODE_ON_CURRENT_LANE = True
+
+                    PREV_NODE.next = APPEND_NODE
+                
+                    # Update the last node on the current lane in case that it is necessary
+                    if IS_NEW_LAST_NODE_ON_CURRENT_LANE:
+                        exec("self.last{0} = self.last{0}.next".format(LAYER_LEVEL))
+                
+                # ~ UPDATE THE LAYERS DATA
+                self.LAYERS_DATA[LAYER_LEVEL][0].insert(index, data) # NODE DATA LIST
+                self.LAYERS_DATA[LAYER_LEVEL][-1] += 1               # Increment the length of the lane
+
+                self.LAYERS_DATA[0][1][START_INDEX] += 1                # Increment the height of the node on layer 0
+                
+                # ~ Update current, randomSkip & LAYER_LEVEL ( check the layer level )
+                current = current.up
+                randomSkip = random.randint(1, 2)
+
+                LAYER_LEVEL += 1
+                if LAYER_LEVEL == self.NUMBER_OF_LANES-1: break
 
     ##################### INSERTION / DELETION / SEARCH #####################
 
@@ -294,7 +411,16 @@ SL = SkipList(5)
 
 ##################################### TEST CODE #####################################
 
-SL.append(5)
+SL.append(1)
+SL.append(2)
+SL.append(3)
+
+print("----------------------------------------------------------------------------------------------")
+
+print("SL.last0 data -- > {0}".format(SL.last0.data))
+print("SL.last0.next -- > {0}".format(SL.last0.next))
+
+print("----------------------------------------------------------------------------------------------")
 
 ##################################### TEST CODE #####################################
 
@@ -312,7 +438,7 @@ print("< -- HEAD & LAST NODES ")
 
 ##################################### HEAD & LAST NODES #####################################
 
-for i in range(5):
+for i in range(3):
     print()
 
 ##################################### AUTOMATIC ITERATION #####################################
@@ -328,7 +454,7 @@ print("< -- AUTOMATIC ITEARTION ")
 
 ##################################### AUTOMATIC ITERATION #####################################
 
-for i in range(5):
+for i in range(3):
     print()
 
 ##################################### LAYERS DATA #####################################
