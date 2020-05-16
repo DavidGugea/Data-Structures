@@ -19,18 +19,18 @@ class SkipList(object):
 
         ##################### GENERAL METHODS ####################
         
-        ~ Get length                                                                        ( self.getLength(lane) )                                                -> integer                  []
-        ~ Create __len__(self) method                                                       ( len(self) )                                                           -> integer                  []
+        ~ Get length                                                                        ( self.getLength(lane) )                                                -> integer                  [x]
+        ~ Create __len__(self) method                                                       ( len(self) )                                                           -> integer                  [x]
 
-        ~ Node at index                                                                     ( self.atIndex(index, lane) )                                           -> Node object              []
+        ~ Node at index                                                                     ( self.atIndex(index, lane) )                                           -> Node object              [x]
 
-        ~ Get index of                                                                      ( self.indexOf(node, lane) )                                            -> Integer                  []
-        ~ Get node data list                                                                ( self.getNodeData() )                                                  -> list                     []
+        ~ Get index of                                                                      ( self.indexOf(node, lane) )                                            -> integer                  [x]
+        ~ Get node data list                                                                ( self.getNodeData() )                                                  -> list                     [x]
 
         ##################### GENERAL METHODS #####################
         ##################### INSERTION / DELETION / SEARCH #####################
 
-        ~ Search                                                                            ( self.search(data, DIRECT_RETURN = True) )                             -> None                     []
+        ~ Search                                                                            ( self.search(data, DIRECT_RETURN = True, LAST = False) )               -> None                     [x]
 
         ~ Append                                                                            ( self.append(data) )                                                   -> None                     []
 
@@ -186,7 +186,62 @@ class SkipList(object):
         return LAYER_DATA
 
     ##################### GENERAL METHODS ####################
+    ##################### INSERTION / DELETION / SEARCH #####################
+    
+    def search(self, data, DIRECT_RETURN = True, LAST = False):
+        ''' Return a node with the given data. For more information about the DIRECT_RETURN & LAST argument read the their description in the method '''
+        '''
+        DESCRIPTION : ~ DIRECT_RETURN ~
+        When we found a node with the given data, if DIRECT_RETURN is True we will return a node on the layer with the same DATA
+        If DIRECT_RETURN is False, we will 'dig down' and return a node on the *FIRST LAYER* with the given data
+        '''
+        '''
+        DESCRIPTION : ~ LAST ~
+        When we find a node, while the next node in front of it has the same data ( example -math.inf <-> 1 <-> 2 <-> 2 <-> 2 ), we will iterate in front, till we find a node that doesn't have the same data or we reach the end
+        '''
+        
+        # Start at the head on the last layer
+        prev = None
+        current = eval("self.head{0}".format(self.NUMBER_OF_LANES - 1))
+
+        while current:
+            if current.data == data:
+                if DIRECT_RETURN:
+                    if LAST:
+                        while current.next:
+                            if current.next == data:
+                                current = current.next
+                            else:
+                                break
+
+                        return current
+                    else:
+                        return current
+                else:
+                    # Dig down to the first layer
+                    while current.down:
+                        current = current.down
+
+                    if LAST:
+                        while current.next:
+                            if current.next == data:
+                                current = current.next
+                            else:
+                                break
+
+                    return current
+            elif current.data < data and current.next:
+                prev = current
+                current = current.next
+            elif ( current.data < data and not current.next ) or ( current.data > data and not prev ):
+                current = current.down
+                prev = None
+            elif current.data > data and prev:
+                current = prev.down
+                prev = None
+
+    ##################### INSERTION / DELETION / SEARCH #####################
 
 SL = SkipList(5)
 
-
+print(SL.search(-math.inf, DIRECT_RETURN = False) == SL.head0)
