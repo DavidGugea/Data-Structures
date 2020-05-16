@@ -22,7 +22,7 @@ class SkipList(object):
         ~ Get length                                                                        ( self.getLength(lane) )                                                -> integer                  [x]
         ~ Create __len__(self) method                                                       ( len(self) )                                                           -> integer                  [x]
 
-        ~ Node at index                                                                     ( self.atIndex(index, lane) )                                           -> Node object              [x]
+        ~ Node at index                                                                     ( self.atIndex(index, lane) )                                           -> Node data                [x]
         ~ Get index of                                                                      ( self.indexOf(node, lane) )                                            -> integer                  [x]
 
         ~ Get node data list                                                                ( self.getNodeData() )                                                  -> list                     [x]
