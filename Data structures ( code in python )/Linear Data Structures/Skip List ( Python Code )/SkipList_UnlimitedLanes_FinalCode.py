@@ -224,7 +224,7 @@ class SkipList(object):
 
                     if LAST:
                         while current.next:
-                            if current.next == data:
+                            if current.next.data == data:
                                 current = current.next
                             else:
                                 break
@@ -239,7 +239,10 @@ class SkipList(object):
             elif current.data > data and prev:
                 current = prev.down
                 prev = None
-    
+   
+        # If we passed the loop without returning anything, then raise a value error
+        raise ValueError("The given node data couldn't be found in the skip list.")
+
     def append(self, data):
         ''' Append a node with the given data. It is sorted automatically '''
         # Check if the skip list have last nodes. They are normally -math.inf, but that means that they don't have any connection with the head nodes, so we will have to rebuild them 
@@ -309,26 +312,17 @@ class SkipList(object):
             self.LAYERS_DATA[0][-1] += 1                # Increment the length of the lane
 
             # Get the prev node using the found PREV_NODE_DATA
-            PREV_NODE = self.search(PREV_NODE_DATA, DIRECT_RETURN = False, LAST = False) # We will set the DIRECT_RETURN to be False because we need the node to be on layer 0
-            
-            '''
-            print("PREV_NODE_DATA       -- > {0}".format(PREV_NODE_DATA))
-            print("PREV_NODE.data       -- > {0}".format(PREV_NODE.data))
-
-            print("index                -- > {0}".format(index))
-            print("PREV_NODE.prev       -- > {0}".format(PREV_NODE.prev))
-            '''
+            PREV_NODE = self.search(PREV_NODE_DATA, DIRECT_RETURN = False, LAST = True) # We will set the DIRECT_RETURN to be False because we need the node to be on layer 0
         
             # Create the append node and set its properties and the other properties of the needed nodes (PREV_NODE & PREV_NODE.next), in order to insert it at the right place
             APPEND_NODE = Node(data)
 
             APPEND_NODE.prev = PREV_NODE
             APPEND_NODE.next = PREV_NODE.next
-
+    
             if PREV_NODE.next:
                 PREV_NODE.next.prev = APPEND_NODE 
             else:
-                print("IS NEW LAST NODE")
                 IS_LAST_NODE = True
             
             PREV_NODE.next = APPEND_NODE
@@ -340,46 +334,45 @@ class SkipList(object):
             current = PREV_NODE.next
             LAYER_LEVEL = 1
             randomSkip = random.randint(1, 2)
-            print("INDEX -- > {0}".format(index))
             START_INDEX = index # Keep the current index of the APPEND_NODE stored in a variable so we will be able to increase the update the height of the node on layer 0 on self.LAYERS_DATA when it goes up
 
             while randomSkip != 2:
-                # ~ Update the previous node to be on the current lane
+                # Update the PREV_NODE
                 while not PREV_NODE.up:
-                    PREV_NODE = PREV_NODE.prev
+                    # Since the we can't update the prev node to go up with it on the other lanes, that means that we have to move backwards with the PREV_NODE, so we will also have to decrement the index of the node that we want to append
+
                     index -= 1
+                    PREV_NODE = PREV_NODE.prev
 
                 PREV_NODE = PREV_NODE.up
 
-                # Get the HEAD NODE on the current layer
+                # Get the HEAD NODE on the current lane and see if it has a .next property. If it doesn't have a .next property then, that means that there is no last node, rather than the default one with -math.inf data
                 HEAD_NODE = eval("self.head{0}".format(LAYER_LEVEL))
-                
-                # ~ INSERT THE APPEND NODE 
 
-                # Check if the HEAD_NODE has a .next property ( if the current lane has a new last node, not the default -math.inf last node )
                 if not HEAD_NODE.next:
                     '''
-                    STRING TO EXEC:
+                    EXEC STRING:
                     
                     self.last{LAYER_LEVEL} = Node(data)
+
                     self.last{LAYER_LEVEL}.prev = self.head{LAYER_LEVEL}
                     self.last{LAYER_LEVEL}.down = current
+                    current.up = self.last{LAYER_LEVEL}
 
                     self.head{LAYER_LEVEL}.next = self.last{LAYER_LEVEL}
 
-                    current.up = self.last{LAYER_LEVEL}
                     '''
-
+                    
                     exec("self.last{0} = Node(data)\nself.last{0}.prev = self.head{0}\nself.last{0}.down = current\nself.head{0}.next = self.last{0}\ncurrent.up = self.last{0}".format(LAYER_LEVEL))
                 else:
-                    # Create the append node and modify it's and the current's node properties
-                    APPEND_NODE = Node(data)
+                    # Create the append node and set up its properties + the properties of the needed nodes in order to insert it ( PREV_NODE & PREV_NODE.next 
+                    IS_NEW_LAST_NODE_ON_CURRENT_LANE = False
 
+                    APPEND_NODE = Node(data)
                     APPEND_NODE.prev = PREV_NODE
                     APPEND_NODE.next = PREV_NODE.next
+                    APPEND_NODE.down = current
                     current.up = APPEND_NODE
-
-                    IS_NEW_LAST_NODE_ON_CURRENT_LANE = False
 
                     if PREV_NODE.next:
                         PREV_NODE.next.prev = APPEND_NODE
@@ -387,38 +380,168 @@ class SkipList(object):
                         IS_NEW_LAST_NODE_ON_CURRENT_LANE = True
 
                     PREV_NODE.next = APPEND_NODE
-                
-                    # Update the last node on the current lane in case that it is necessary
+
                     if IS_NEW_LAST_NODE_ON_CURRENT_LANE:
                         exec("self.last{0} = self.last{0}.next".format(LAYER_LEVEL))
-                
-                # ~ UPDATE THE LAYERS DATA
+
+                # UPDATE self.LAYERS_DATA
                 self.LAYERS_DATA[LAYER_LEVEL][0].insert(index, data) # NODE DATA LIST
                 self.LAYERS_DATA[LAYER_LEVEL][-1] += 1               # Increment the length of the lane
+    
+                self.LAYERS_DATA[0][1][START_INDEX] += 1             # Increment the height of the node on lane 0        
 
-                self.LAYERS_DATA[0][1][START_INDEX] += 1                # Increment the height of the node on layer 0
-                
-                # ~ Update current, randomSkip & LAYER_LEVEL ( check the layer level )
+                # Update the current node & randomSkip & LAYER_LEVEL ( check if it has reached the limit )
                 current = current.up
-                randomSkip = random.randint(1, 2)
-
+                randomSkip = random.randint(1, 2) # !!!!!!!!!!!! change to random.randint(1, 2) after testing it !!!!!!!!!!!!
+                
                 LAYER_LEVEL += 1
-                if LAYER_LEVEL == self.NUMBER_OF_LANES-1: break
+                if LAYER_LEVEL == self.NUMBER_OF_LANES - 1:
+                    # We write self.NUMBER_OF_LANES - 1 and not just self.NUMBER_OF_LANES because we start with the head & last nodes from 0 ( example : self.head0 & self.last0 ) and if we have for example 5 lanes, then we will end with : self.head4 & self.last4, so we will have self.head{self.NUMBER_OF_LANES-1} & self.last{self.NUMBER_OF_LANES-1}. So that's why we write self.NUMBER_OF_LANES - 1
+                    break
+
+    def deleteNode(self, node):
+        ''' Delete the given node '''
+
+        # Check the given node 
+        if type(node) != Node:
+            raise ValueError("The given node must be of type node. The node argument that you gave was {0} which is of type {1}".format(node, str(type(node))))
+
+        # Make sure that the given node is on lane 0
+        while node.down:
+            node = node.down
+
+        LAYER_LEVEL = 0
+        current = node
+
+        # Update self.LAYERS_DATA
+        del self.LAYERS_DATA[0][1][self.indexOf(node, LAYER_LEVEL)] # Delete the height of the node on the first layer
+
+        while current:
+            INDEX_OF_DELETE_NODE = self.indexOf(current, LAYER_LEVEL)
+            
+            # Update self.LAYERS_DATA
+            del self.LAYERS_DATA[LAYER_LEVEL][0][INDEX_OF_DELETE_NODE]   # Delete from node data list, the first list on the layer in self.LAYERS_DATA ( [0] )
+            self.LAYERS_DATA[LAYER_LEVEL][-1] -= 1                       # Decrement the length of the lane
+            
+            PREV_NODE = current.prev
+
+            PREV_NODE.next = current.next
+            if current.next:
+                current.next.prev = PREV_NODE
+
+            current = current.up
+    
+            LAYER_LEVEL += 1
+
+    def deleteAtIndex(self, index, lane):
+        ''' Delete the given node at the given index. '''
+
+        # Check the given lane 
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. The given lane was : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        # Check the given index
+        if not 0 <= index < self.LAYERS_DATA[lane][-1]:
+            raise IndexError("The given index must be between 0 and {0}. The given index was : {1}".format(self.LAYERS_DATA[lane][-1], index))
+
+        # Get the node at the given lane by starting at the head node of the given lane and keeping track of the current index
+        current = eval("self.head{0}".format(lane))
+        currentIndex = 0
+
+        while currentIndex < index:
+            current = current.next
+            currentIndex += 1
+        
+        # Delete the node
+        self.deleteNode(current)
+        
+    def deleteNodeWithData(self, data):
+        ''' Delete the first node found with the given data '''
+
+        self.deleteNode(self.search(data, True, False)) 
+
 
     ##################### INSERTION / DELETION / SEARCH #####################
+    ##################### OTHERS #####################
+
+    def merge(self, MERGE_SKIP_LIST):
+        ''' Append all the node data that is in the MERGE_SKIP_LIST on layer 0 '''
+        # Check the given MERGE_SKIP_LIST
+        if type(MERGE_SKIP_LIST) != SkipList:
+            raise ValueError("The given MERGE_SKIP_LIST argument must be of type Skip List. The value that you gave at the argument was {0} which is of type {1}".format(MERGE_SKIP_LIST, type(MERGE_SKIP_LIST)))
+        
+        # *NOTE* : Since the skip list is a randomized data structure, keep in mind that the appended nodes won't keep the same height once they are merge in the main skip list ( self )
+        for NODE_DATA in MERGE_SKIP_LIST.LAYERS_DATA[0][0][1:]: # We write [1:] because we don't need the -math.inf
+            self.append(NODE_DATA)
+    
+    def removeDuplicates(self):
+        ''' Remove all the duplicate nodes in the skip list '''
+        # Make a dictionary with all the node data from the skip list ( that is on layer 0 ) as keys and store how many times they duplicate as values 
+        REPEAT_DICT = dict()
+
+        for NODE_DATA in self.LAYERS_DATA[0][0]:
+            REPEAT_DICT.setdefault(NODE_DATA, self.LAYERS_DATA[0][0].count(NODE_DATA) - 1)
+
+        for REPETITION_KEY in REPEAT_DICT.keys():
+            for timesDuplicated in range(REPEAT_DICT[REPETITION_KEY]):
+                self.deleteNodeWithData(REPETITION_KEY)
+
+    def isPalindrome(self, lane):
+        ''' Store all the node data from the given lane in a string and find out if the string is the same if we turn it upside down '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. The lane that you gave was : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        STRING_ON_LANE = "".join(map(str, self.LAYERS_DATA[lane][0]))
+
+        return STRING_ON_LANE[::-1]
+
+    def sumWith(self, SUM_SKIP_LIST, lanes_MAIN, lanes_SUM):
+        ''' Return the sum between the main skip list ( self ) and the SUM_SKIP_LIST on the given lanes. '''
+        '''
+        *NOTE* :
+        the lanes_MAIN represents the lanes numbers that you want to add on the first lane.
+
+        So if we want to add the integers&floats on the lanes 1, 3 and 4, the lanes_MAIN should look like this : [1, 3, 4]
+        It works the same for the lanes_SUM
+
+        Example:
+
+        We have the main skip list with the name 'SL' and the skip list with the name 'mySkipList', and we want to add
+        all the numbers from the main skip list on the lanes 1, 2 and 4 with all the numbers from 
+        the 'mySkipList' skip list on the lane 2, 3 and 4, so we will write this:
+        
+        ###########################################################
+        #                                                         #
+        #    SUM = SL.sumWith(mySkipList, [1, 2, 4], [2, 3, 4])   #
+        #                                                         #
+        ###########################################################
+        '''
+
+        # Check the given SUM_SKIP_LIST
+        if type(SUM_SKIP_LIST) == SkipList:
+            raise ValueError("The given SUM_SKIP_LIST argument must be a SkipList. You gave {0} which is of type {1}".format(SUM_SKIP_LIST, type(SUM_SKIP_LIST)))
+
+        # Check the given lanes
+        CHECK_FUNCTION = lambda node_data : exec("raise ValueError('The given lanes must be something between 0 and {0}') if not 0 <= node_data < {1}".format(self.NUMBER_OF_LANES, self.NUMBER_OF_LANES - 1)) 
+        
+
+    ##################### OTHERS #####################
 
 SL = SkipList(5)
+XL = SkipList(5)
 
 ##################################### TEST CODE #####################################
 
-SL.append(1)
-SL.append(2)
-SL.append(3)
+for i in range(1, 7):
+    SL.append(i)
+
+for i in range(4, 7):
+    XL.append(i)
 
 print("----------------------------------------------------------------------------------------------")
 
-print("SL.last0 data -- > {0}".format(SL.last0.data))
-print("SL.last0.next -- > {0}".format(SL.last0.next))
+
 
 print("----------------------------------------------------------------------------------------------")
 
