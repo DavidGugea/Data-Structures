@@ -32,26 +32,25 @@ class SkipList(object):
 
         ~ Search                                                                            ( self.search(data, DIRECT_RETURN = True, LAST = False) )               -> None                     [x]
 
-        ~ Append                                                                            ( self.append(data) )                                                   -> None                     []
+        ~ Append                                                                            ( self.append(data) )                                                   -> None                     [x]
 
-        ~ Delete node                                                                       ( self.deleteNode(node) )                                               -> None                     []
-        ~ Delete at index                                                                   ( self.deleteAtIndex(index, lane) )                                     -> None                     []
-        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                                       -> None                     []
+        ~ Delete node                                                                       ( self.deleteNode(node) )                                               -> None                     [x]
+        ~ Delete at index                                                                   ( self.deleteAtIndex(index, lane) )                                     -> None                     [x]
+        ~ Delete node with data                                                             ( self.deleteNodeWithData(data) )                                       -> None                     [x]
 
         ##################### INSERTION / DELETION / SEARCH #####################
         ##################### OTHERS #####################
 
-        ~ Merge                                                                             ( self.merge(MERGE_SKIP_LIST ) )                                        -> None                     []
+        ~ Merge                                                                             ( self.merge(MERGE_SKIP_LIST ) )                                        -> None                     [x]
 
-        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                                             -> None                     []
-        ~ Is palindrome                                                                     ( self.isPalindrome(lane) )                                             -> None                     []
-        ~ Sum with another skip list                                                        ( self.sumWith(SUM_SKIP_LIST, lanes_MAIN, lanes_SUM) )                  -> None                     []
+        ~ Remove duplicates                                                                 ( self.removeDuplicates() )                                             -> None                     [x]
+        ~ Sum with another skip list                                                        ( self.sumWith(SUM_SKIP_LIST, lanes_MAIN, lanes_SUM) )                  -> None                     [x]
 
-        ~ Split skip list in half                                                           ( self.splitInHalf(lane) )                                              -> [ list_1, list_2 ]       []
-        ~ Split skip list after node                                                        ( self.splitAfterNode(lane, node ) )                                    -> [ list_1, list_2 ]       []
-        ~ Split skip list at index                                                          ( self.slitAtIndex(lane, index) )                                       -> [ list_1, list_2 ]       []
+        ~ Split skip list in half                                                           ( self.splitInHalf(lane) )                                              -> [ list_1, list_2 ]       [x]
+        ~ Split skip list after node                                                        ( self.splitAfterNode(lane, node ) )                                    -> [ list_1, list_2 ]       [x]
+        ~ Split skip list at index                                                          ( self.split(lane, index) )                                             -> [ list_1, list_2 ]       [x]
 
-        ~ Pairs with sum                                                                    ( self.pairsWithSum(target_sum, lane) )                                 -> None                     []
+        ~ Pairs with sum                                                                    ( self.pairsWithSum(target_sum, lane) )                                 -> None                     [x]
     
         ##################### OTHERS #####################
 
@@ -486,16 +485,6 @@ class SkipList(object):
             for timesDuplicated in range(REPEAT_DICT[REPETITION_KEY]):
                 self.deleteNodeWithData(REPETITION_KEY)
 
-    def isPalindrome(self, lane):
-        ''' Store all the node data from the given lane in a string and find out if the string is the same if we turn it upside down '''
-        # Check the given lane
-        if not 0 <= lane < self.NUMBER_OF_LANES:
-            raise ValueError("The given lane must be between 0 and {0}. The lane that you gave was : {1}".format(self.NUMBER_OF_LANES - 1, lane))
-
-        STRING_ON_LANE = "".join(map(str, self.LAYERS_DATA[lane][0]))
-
-        return STRING_ON_LANE[::-1]
-
     def sumWith(self, SUM_SKIP_LIST, lanes_MAIN, lanes_SUM):
         ''' Return the sum between the main skip list ( self ) and the SUM_SKIP_LIST on the given lanes. '''
         '''
@@ -519,77 +508,104 @@ class SkipList(object):
         '''
 
         # Check the given SUM_SKIP_LIST
-        if type(SUM_SKIP_LIST) == SkipList:
+        if type(SUM_SKIP_LIST) != SkipList:
             raise ValueError("The given SUM_SKIP_LIST argument must be a SkipList. You gave {0} which is of type {1}".format(SUM_SKIP_LIST, type(SUM_SKIP_LIST)))
 
         # Check the given lanes
         CHECK_FUNCTION = lambda node_data : exec("raise ValueError('The given lanes must be something between 0 and {0}') if not 0 <= node_data < {1}".format(self.NUMBER_OF_LANES, self.NUMBER_OF_LANES - 1)) 
         
+        map(CHECK_FUNCTION, lanes_MAIN)
+        map(CHECK_FUNCTION, lanes_SUM)
+
+        # Get all the node data from all the given lanes
+        NodeData_MAIN = list()
+        NodeData_SUM  = list()
+
+        for LAYER_LEVEL in lanes_MAIN:
+            NodeData_MAIN.extend(self.LAYERS_DATA[LAYER_LEVEL][0])
+        
+        for LAYER_LEVEL in lanes_SUM:
+            NodeData_SUM.extend(SUM_SKIP_LIST.LAYERS_DATA[LAYER_LEVEL][0])
+
+        # Filter out all the numbers from both node data lists
+        FILTER_FUNCTION = lambda node_data: type(node_data) == int or type(node_data) == float and node_data != -math.inf
+
+        NodeData_MAIN = list(filter(FILTER_FUNCTION, NodeData_MAIN))
+        NodeData_SUM  = list(filter(FILTER_FUNCTION, NodeData_SUM))
+
+        # Return the sum between both lists
+        return sum(NodeData_MAIN) + sum(NodeData_SUM)
+
+    def splitInHalf(self, lane):
+        ''' Return a list that contains two other lists with the data split in half on the given lane '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. You gave : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        LANE_TO_SPLIT = self.LAYERS_DATA[lane][0]
+        LENGTH = self.LAYERS_DATA[lane][-1]
+
+        return [ LANE_TO_SPLIT[:LENGTH // 2], LANE_TO_SPLIT[LENGTH // 2:] ]
+
+    def splitAfterNode(self, lane, node):
+        ''' Return a list that contains two other lists with the data split after the given node on the given lane '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. You gave : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        # Check the given node
+        if type(node) != Node:
+            raise ValueError("The given node must be of type node. The value that you gave at the 'node' argument was {0} which is of type {1}".format(node, type(node)))
+
+        # Get the index of the given node on the given lane
+        indexToSplitAt = self.indexOf(node, lane)
+
+        # Return the split data after the found index
+        LANE_TO_SPLIT = self.LAYERS_DATA[lane][0]
+
+        return [ LANE_TO_SPLIT[:indexToSplitAt + 1], LANE_TO_SPLIT[indexToSplitAt + 1:] ]
+
+    def splitAtIndex(self, lane, index):
+        ''' Split the given lane data at the given index '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. You gave : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        # Check the given index
+        if not 0 <= index < self.LAYERS_DATA[lane][-1]:
+            raise IndexError("The given index must be between 0 and {0}. You gave : {1}".format(self.LAYERS_DATA[lane][-1] - 1, index))
+
+        # Return the split data at the found index
+        LANE_TO_SPLIT = self.LAYERS_DATA[lane][0]
+
+        return [ LANE_TO_SPLIT[:index], LANE_TO_SPLIT[index:] ]
+
+    def pairsWithSum(self, target_sum, lane):
+        ''' Return all the pairs ( two-number pairs ) of numbers on the given lane that match sum to the given target_sum '''
+        # Check the given lane
+        if not 0 <= lane < self.NUMBER_OF_LANES:
+            raise ValueError("The given lane must be between 0 and {0}. You gave : {1}".format(self.NUMBER_OF_LANES - 1, lane))
+
+        # Check the given target_sum
+        try:
+            target_sum = eval(str(target_sum))
+        except Exception:
+            raise ValueError("The given target_sum must be a number. You gave : {0}, which is of type {1}".format(target_sum, type(target_sum)))
+        
+        # Set up the PAIRS list and get all the node data from the given lane
+        PAIRS = list()
+        NODE_DATA = self.LAYERS_DATA[lane][0]
+
+        # Filter out everything that is not a number or that is (-math.inf) from the given lane
+        FILTER_FUNCTION = lambda node_value : type(node_value) == int or type(node_value) == float and node_value != -math.inf
+
+        NODE_DATA = list(filter(FILTER_FUNCTION, NODE_DATA))
+
+        for permutation in itertools.permutations(NODE_DATA, 2):
+            if sum(permutation) == target_sum and permutation not in PAIRS and permutation[::-1] not in PAIRS:
+                PAIRS.append(tuple(permutation))
+        
+        # Return the pairs of numbers which summed are the target_sum on the given lane
+        return PAIRS
 
     ##################### OTHERS #####################
-
-SL = SkipList(5)
-XL = SkipList(5)
-
-##################################### TEST CODE #####################################
-
-for i in range(1, 7):
-    SL.append(i)
-
-for i in range(4, 7):
-    XL.append(i)
-
-print("----------------------------------------------------------------------------------------------")
-
-
-
-print("----------------------------------------------------------------------------------------------")
-
-##################################### TEST CODE #####################################
-
-for i in range(3):
-    print()
-
-##################################### HEAD & LAST NODES #####################################
-
-print("HEAD & LAST NODES -- > ")
-print()
-for LAYER_LEVEL in range(SL.NUMBER_OF_LANES-1, -1, -1):
-    print("{0} -- > {1} // {2}".format(LAYER_LEVEL, eval("SL.head{0}.data".format(LAYER_LEVEL)), eval("SL.last{0}.data".format(LAYER_LEVEL))))
-print()
-print("< -- HEAD & LAST NODES ")
-
-##################################### HEAD & LAST NODES #####################################
-
-for i in range(3):
-    print()
-
-##################################### AUTOMATIC ITERATION #####################################
-
-print("AUTOMATIC ITERATION -- > ")
-print()
-for LAYER_LEVEL in range(SL.NUMBER_OF_LANES-1, -1, -1):
-    NODE_DATA_LIST = list()
-    exec("current = SL.head{0}\nwhile current:\n\tNODE_DATA_LIST.append(current.data)\n\tcurrent = current.next".format(LAYER_LEVEL))
-    print("{0} -- > {1}".format(LAYER_LEVEL, NODE_DATA_LIST))
-print()
-print("< -- AUTOMATIC ITEARTION ")
-
-##################################### AUTOMATIC ITERATION #####################################
-
-for i in range(3):
-    print()
-
-##################################### LAYERS DATA #####################################
-
-print("LAYERS DATA -- > ")
-print()
-for LAYER_LEVEL in list(SL.LAYERS_DATA.keys())[::-1]:
-    print("{0} -- > {1}".format(LAYER_LEVEL, SL.LAYERS_DATA[LAYER_LEVEL]))
-print()
-print("< -- LAYERS DATA ")
-
-##################################### LAYERS DATA #####################################
-
-for i in range(3):
-    print()
