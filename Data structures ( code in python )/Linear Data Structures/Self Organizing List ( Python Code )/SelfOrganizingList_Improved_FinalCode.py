@@ -1,3 +1,5 @@
+import itertools 
+
 class Node(object):
     def __init__(self, data):
         self.data = data
@@ -85,6 +87,7 @@ class SelfOrganizingList(object):
 
     def getNodeCounter(self):
         ''' Return a dictionary that contains all the node counters from the self organizing list for all the nodes. ( NODE DATA ( key ) -> NODE COUNTER ( value ) ) '''
+        # *NOTE* -- > In case of duplicates, they won't be visible in the dict hence you can't have multiple keys that are the same in the dict #
         NODE_COUNTER = dict()
         current = self.head
 
@@ -291,37 +294,118 @@ class SelfOrganizingList(object):
         return current
 
     ########################### DEFAULT SelfOrganizingList METHODS + MORE ###########################
+    ########################### OTHERS ###########################
+    
+    def merge(self, MERGE_SOL):
+        ''' Append all the node data from the MERGE_SOL self organizing list argument to the main self organizing list ( self ) '''
+        # Check the given MERGE_SOL argument
+        if type(MERGE_SOL) != SelfOrganizingList:
+            raise ValueError("The given self organizing list argument ( MERGE_SOL argument ) must be of type SelfOrganizingList. You gave {0} which is of type {1}".format(MERGE_SOL, type(MERGE_SOL)))
 
-x = SelfOrganizingList()
+        for NODE_DATA in MERGE_SOL.getNodeData():
+            self.append(NODE_DATA)
 
-def present():
-    print("----------------------------")
-    print(x.getNodeData())
-    print(x.getNodeCounter())
-    print("-")
-    y = x.last
-    if y:
-        print("LAST NODE -- > {0}".format(y.data))
-    else:
-        print("LAST NODE -- > {0}".format(y))
-    print("Length -- > {0}".format(len(x)))
-    print("----------------------------")
+    def removeDuplicates(self):
+        ''' Remove all the duplicates from the self organizing list '''
+        # Iterate over the entire list by keeping track of the nodes that were already used. If we encounter a node that was already used, we just simply delete it.
+        DUPLICATE_LIST = list()
+        current = self.head
+        
+        while current:
+            CURRENT_NEXT = current.next
 
-    for i in range(2):
-        print()
+            if current.data in DUPLICATE_LIST:
+                self.deleteNode(current)
+            else:
+                DUPLICATE_LIST.append(current.data)
 
-present()
+            current = CURRENT_NEXT
 
-for i in range(1, 6):
-    x.append(i)
+    def isPalindrome(self):
+        ''' Return the boolean value of the string in the self organizing list being the same upside down '''
+        NODE_STRING = "".join(map(str, self.getNodeData()))
 
-present()
+        return NODE_STRING == NODE_STRING[::-1]
+        
+    def SUM_WITH(self, SUM_SOL):
+        ''' Sum all the numbers from the given "SUM_SOL" self organizing list with all the numbers from the main self organizing list ''' 
+        # Check the given SUM_SOL argument
+        if type(SUM_SOL) != SelfOrganizingList:
+            raise ValueError("The given self organizing list argument ( SUM_SOL argument ) must be of type SelfOrganisingList. You gave {0} which is of type {1}".format(SUM_SOL, type(SUM_SOL)))
 
-for i in range(3):
-    x.searchAtIndex(2)
-for i in range(2):
-    x.searchAtIndex(4)
-for i in range(45):
-    x.searchAtIndex(1)
+        # Get all the node data from both self organizing lists and filter out the values that are not numbers
+        NODE_DATA_1 = self.getNodeData()
+        NODE_DATA_2 = SUM_SOL.getNodeData()
 
-present() 
+        FILTER_FUNCTION = lambda node_data: type(node_data) == int or type(node_data) == float
+
+        NODE_DATA_1 = list(filter(FILTER_FUNCTION, NODE_DATA_1))
+        NODE_DATA_2 = list(filter(FILTER_FUNCTION, NODE_DATA_2))
+
+        # Return the sum between both self organizing lists
+        return sum(NODE_DATA_1) + sum(NODE_DATA_2)
+
+    def splitInHalf(self):
+        ''' Return a nested list. The first list in the nested list contains the first half, the second one contains the second half node data '''
+        NODE_DATA = self.getNodeData()
+        LENGTH = len(NODE_DATA)
+
+        return [ NODE_DATA[: ( LENGTH // 2 ) ], NODE_DATA[ ( LENGTH // 2 ) :] ]
+
+    def splitAfterNode(self, node):
+        ''' Return a nested list. The first list in the nested list contains all the node data before the given node, the second one contains all the node data after the given node '''
+        # Check the given node
+        if type(node) != Node:
+            raise ValueError("The given node must be of type node. You gave at the node argument {0} which has a type of {1}".format(node, type(node)))
+
+        # Get the index of the given node ( we can't use self.search here because self.search can only be used by the user so that it is organized by his search results not by the split algorithm that will increase the .counter of a node without the user knowing it. So keep track of the current node and of the index and iterate through the list until we find the given node
+        current = self.head
+        indexTrack = 0
+
+        while current:
+            if current == node:
+                break
+
+            current = current.next
+            indexTrack += 1
+
+        # If the current value is None that means that we couldn't #break# througout the loop so that means that we didn't find the given node. Hence we will raise a value error
+        if not current:
+            raise ValueError("The given node couldn't be found in the self organizing list.")
+        
+        # Return the nested list
+        NODE_DATA = self.getNodeData()
+
+        return [ NODE_DATA[:indexTrack + 1], NODE_DATA[indexTrack + 1:] ]
+
+    def splitAtIndex(self, index):
+        ''' Return a nested list. The first list in the nested list will contain all the node data for all the nodes before the given index, the second one will contain all the node data of all the nodes after the given index '''
+        # Check the given index
+        if not 0 <= index < self.length:
+            raise IndexError("The given index was either too big or too small ( < 0 ). The index must be a number between 0 and {0}. You gave : {1}".format(self.length - 1, index))
+        
+        # Return the nested list 
+        NODE_DATA = self.getNodeData()
+
+        return [ NODE_DATA[:index], NODE_DATA[index:] ]
+
+    def pairsWithSum(self, sum_value):
+        ''' Return all the pairs ( 2-pair-numbers) that summed return the given sum_value argument '''
+        # Check the given sum_value argument
+        try:
+            sum_value = eval(str(sum_value))
+        except:
+            raise ValueError("The given sum_value must be a number. You gave : {1}".format(sum_value))
+        
+        # Get the pairs of numbers that summed return the given sum_value argument
+        PAIRS = list()
+        NODE_DATA = self.getNodeData()
+
+        for permutation in itertools.permutations(NODE_DATA, 2):
+            if sum(permutation) == sum_value and permutation not in PAIRS and permutation[::-1] not in PAIRS:
+                PAIRS.append(tuple(permutation))
+
+        # Return the found pairs
+        return PAIRS
+
+    ########################### OTHERS ###########################
