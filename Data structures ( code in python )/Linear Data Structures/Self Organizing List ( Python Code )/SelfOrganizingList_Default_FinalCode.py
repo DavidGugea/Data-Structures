@@ -10,6 +10,16 @@ class Node(object):
 class SelfOrganizingList(object):
     def __init__(self):
         self.head = None
+
+        '''
+        !!!!!!!!!!!!!!!!!!!!!!!! NOTE !!!!!!!!!!!!!!!!!!!!!!!!
+
+        The self-organising-list is so designed that it uses the "Count-Method" to organize it's Nodes. It doesn't not use the MTF (Move To Front) method or the TM ( Transpose Method ). We used MTF and TM in the Count Method but we didn't explicitly use them to organize the list. The Nodes in this self-organizing list are organized using the COUNT METHOD not MTF or TM !!!!!!!!
+        We keep track of the nodes and the most frequently used Nodes are moved towards the front and the most infrequently used Nodes are moved towards the end of the self-organizing list and we do that by keeping track of the counters.
+
+        !!!!!!!!!!!!!!!!!!!!!!!! NOTE !!!!!!!!!!!!!!!!!!!!!!!!
+        '''
+
         '''
 
         ( ~ Description ( how the method looks ) -> return value [ done(x) / undone(empty) ] )
