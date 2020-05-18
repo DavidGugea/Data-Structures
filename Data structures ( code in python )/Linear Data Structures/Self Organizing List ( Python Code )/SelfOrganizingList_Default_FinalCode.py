@@ -26,7 +26,7 @@ class SelfOrganizingList(object):
         ~ Delete a node from the list                                                               ( self.delete(node) )                                                   -> None                         [x]
 
         ~ Move a node to front (MFT)                                                                ( self.MFT(node) )                                                      -> None                         [x]
-        ~ Transpose ( swap a method with it's previous node ) Method (TM)                           ( self.TM(node) )                                                       -> None                         [x]
+        ~ Transpose ( swap the given node with it's previous node ) Method (TM)                     ( self.TM(node) )                                                       -> None                         [x]
 
         ~ Search a node with the given data, after the node is found organize the list              ( self.search(data) )                                                   -> Node object                  [x]
 
