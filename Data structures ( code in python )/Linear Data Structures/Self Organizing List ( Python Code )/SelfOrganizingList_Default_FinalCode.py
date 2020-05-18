@@ -92,8 +92,9 @@ class SelfOrganizingList(object):
             PREV_NODE = node.prev
             NEXT_NODE = node.next
 
+            if NEXT_NODE:
+                NEXT_NODE.prev = PREV_NODE
             PREV_NODE.next = NEXT_NODE
-            NEXT_NODE.prev = PREV_NODE
 
     def MFT(self, node):
         ''' MFT means "MoveToFront", and it moves the given node to the front, so it will become the head node '''
